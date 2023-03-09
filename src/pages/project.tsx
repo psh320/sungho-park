@@ -1,6 +1,6 @@
 export default function Project() {
   return (
-    <div>
+    <div className="min-h-screen">
       <h1>Project</h1>
     </div>
   );
