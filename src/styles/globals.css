@@ -41,3 +41,15 @@ footer {
   width: 100%;
   z-index: 999;
 }
+
+.project-card {
+  @apply dark:bg-slate-700 bg-gray-50 rounded-xl duration-200 border border-slate-200 dark:border-slate-500 hover:scale-105 hover:shadow-md dark:hover:shadow-gray-500;
+}
+
+.gradient-bg {
+  background: linear-gradient(
+    270deg,
+    rgb(19, 173, 199) 0%,
+    rgb(148, 93, 214) 100%
+  );
+}

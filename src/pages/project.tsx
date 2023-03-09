@@ -19,14 +19,12 @@ type Props = {
 export default function Project({ projects }: Props) {
   console.log(projects);
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-20 mb-12 ">
-      <div className="container">
-        <h1>Project</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center">
-          {projects.map((project, key) => (
-            <ProjectItems key={key} project={project} />
-          ))}
-        </div>
+    <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-20 mb-12">
+      <h1>Project</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-5xl">
+        {projects.map((project, key) => (
+          <ProjectItems key={key} project={project} />
+        ))}
       </div>
     </div>
   );
