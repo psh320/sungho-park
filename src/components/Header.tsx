@@ -1,5 +1,5 @@
 import Link from "next/link";
-import DarkModeToggleButton from "./DarkmodeToggleButton";
+import DarkModeToggleButton from "./DarkModeToggleButton";
 
 export default function Header() {
   return (
