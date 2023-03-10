@@ -57,7 +57,7 @@ export async function getStaticProps(context: GetStaticProps) {
 }
 
 function parseDatabase(data: any): ProjectType[] {
-  return data.map((project) => ({
+  return data.map((project: any) => ({
     title: project.properties.Name.title[0].plain_text,
     duration: project.properties.Duration.date,
     github: project.properties.Github.url,
