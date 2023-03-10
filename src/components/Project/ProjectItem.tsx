@@ -5,19 +5,19 @@ type Props = {
   project: ProjectType;
 };
 export default function ProjectItems({ project }: Props) {
-  const calculatedPeriod = (start, end) => {
+  const calculatedPeriod = (start: string, end: string) => {
     const startDateStringArray = start.split("-");
     const endDateStringArray = end.split("-");
 
     const startDate = new Date(
-      startDateStringArray[0],
-      startDateStringArray[1],
-      startDateStringArray[2]
+      Number(startDateStringArray[0]),
+      Number(startDateStringArray[1]),
+      Number(startDateStringArray[2])
     ).getTime();
     const endDate = new Date(
-      endDateStringArray[0],
-      endDateStringArray[1],
-      endDateStringArray[2]
+      Number(endDateStringArray[0]),
+      Number(endDateStringArray[1]),
+      Number(endDateStringArray[2])
     ).getTime();
 
     const diffInMs = Math.abs(endDate - startDate);
@@ -82,21 +82,45 @@ export default function ProjectItems({ project }: Props) {
           </a>
         </div>
         <div className="flex flex-col justify-center items-center my-2">
-          <div className="border-2 w-12 rounded-md border-blue-200 dark:border-orange-500" />
+          <div className="border-2 w-12 rounded-md border-sky-200 dark:border-sky-700" />
         </div>
 
-        <h2 className="font-semibold">Tech Stack</h2>
+        <h2 className="font-semibold mb-1">Tech Stack</h2>
         <div className="flex items-start my-1 flex-wrap">
           {project.tech.map((tag, index) => (
             <h1
               key={index}
-              className="px-2 py-1 mb-2 mr-2 rounded-md bg-sky-200 dark:bg-sky-700"
+              className="px-2 py-1 mb-2 mr-2 rounded-md bg-sky-200 dark:bg-sky-700 font-medium"
             >
               {tag.name}
             </h1>
           ))}
         </div>
         <div className="flex flex-row items-center ">
+          {project.site && (
+            <a
+              href={project.site}
+              className="mr-4 mt-4 flex flex-row hover:font-bold hover:scale-90 duration-100 items-center justify-center"
+              target="_blank"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+                />
+              </svg>
+              <p>Link</p>
+            </a>
+          )}
+
           {project.github && (
             <a
               href={project.github}
@@ -107,6 +131,7 @@ export default function ProjectItems({ project }: Props) {
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
+                fill="currentColor"
                 viewBox="0 0 24 24"
                 className="mr-2"
               >
