@@ -36,10 +36,23 @@ footer {
 }
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   width: 100%;
   z-index: 999;
+  transition: top 0.3;
+}
+.header-hidden {
+  top: -80px;
+}
+
+.header-animation {
+  max-height: 80px;
+  transition: max-height 0.2s linear;
+}
+
+.header-opened {
+  max-height: 300px;
 }
 
 .project-card {

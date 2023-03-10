@@ -182,7 +182,7 @@ export default function ProjectItems({ project }: Props) {
                 />
                 <path d="m105 55-40.8-23.4v46.8z" fill="#fff" />
               </svg>
-              <p>Demo Video</p>
+              <p>Demo</p>
             </a>
           )}
         </div>
