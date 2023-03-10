@@ -18,7 +18,6 @@ type Props = {
   projects: ProjectType[];
 };
 export default function Project({ projects }: Props) {
-  console.log(projects);
   return (
     <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-24 mb-12">
       <h1 className="font-bold text-5xl">Project</h1>
@@ -32,7 +31,7 @@ export default function Project({ projects }: Props) {
 }
 
 //called at build time
-export async function getStaticProps(context: GetStaticProps) {
+export async function getServerSideProps(context: GetStaticProps) {
   const options = {
     method: "POST",
     headers: {
@@ -49,7 +48,6 @@ export async function getStaticProps(context: GetStaticProps) {
     options
   );
   const projects = await res.json();
-  console.log(projects.results[2].cover);
   const parsedData = parseDatabase(projects.results);
   return {
     props: { projects: parsedData }, // will be passed to the page component as props
