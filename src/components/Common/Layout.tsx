@@ -1,7 +1,12 @@
+import { ReactNode } from "react";
 import Footer from "./Footer";
 import Header from "./Header";
 
-export default function Layout({ children }) {
+type Props = {
+  children: ReactNode;
+};
+
+export default function Layout({ children }: Props) {
   return (
     <div className="bg-primary">
       <Header />
