@@ -9,8 +9,12 @@ export default function App({ Component, pageProps }: AppProps) {
     <ThemeProvider>
       <Layout>
         <Head>
-          <title>Sungho Park</title>
+          <title>Sungho Park - Frontend Engineer</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta
+            name="description"
+            content={"Hello! I am Sungho Park, Frontend Engineer!"}
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <Component {...pageProps} />
