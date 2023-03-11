@@ -4,7 +4,7 @@ import { TOKEN, DATABASE_ID } from "../config/index";
 
 export type ProjectType = {
   title: string;
-  duration: { start: string; end: string; timezone: null };
+  duration: { start: string; end: string | null; timezone: null };
   github: string | null;
   demo: string | null;
   tech: { id: string; color: string; name: string }[];
