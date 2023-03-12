@@ -40,7 +40,15 @@ export async function getServerSideProps(context: GetStaticProps) {
       "content-type": "application/json",
       Authorization: `Bearer ${TOKEN}`,
     },
-    body: JSON.stringify({ page_size: 100 }),
+    body: JSON.stringify({
+      page_size: 100,
+      sorts: [
+        {
+          property: "Duration",
+          direction: "descending",
+        },
+      ],
+    }),
   };
 
   const res = await fetch(
