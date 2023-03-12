@@ -13,14 +13,15 @@ export default function Introduction() {
           Frontend Engineer
         </h2>
         <p className="mb-4 leading-relaxed text-lg text-left">
-          Hello! My name is Sungho Park (Andrew) and I am year 4 student in the
-          City University of Hong Kong majoring in Computer Science.
+          Hello! My name is Sungho Park. I am a year 4 student at the City
+          University of Hong Kong majoring in Computer Science.
         </p>
         <p className="mb-8 leading-relaxed text-lg text-left">
           I am a Junior Frontend Engineer who does not hesitate to learn new
           technology and is responsible for the tasks given to me. I am
           passionate about learning and growing as a developer and enjoy
-          cooperating with team.
+          cooperating with a team. I enjoy developing both web and app that
+          provides good user experience.
         </p>
         <div className="flex justify-center">
           <button
