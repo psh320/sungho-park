@@ -11,7 +11,7 @@ export default function Header() {
           <span className="ml-3 text-xl text-primary">Sungho Park</span>
         </Link>
         <p className="text-sm sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-slate-600 sm:py-2 sm:mt-0 mt-4 text-primary">
-          © 2023 Sungho Park
+          parksungho320@gmail.com
         </p>
         <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           <a
