@@ -1,7 +1,7 @@
 import ProjectItems from "@/components/Project/ProjectItem";
 import NotionModal from "@/components/Project/ProjectPageModal";
 import { GetStaticProps } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TOKEN, DATABASE_ID } from "../config/index";
 
 export type ProjectType = {
@@ -26,11 +26,11 @@ export default function Project({ projects }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pageId, setPageId] = useState("");
   const [modalProject, setModalProject] = useState<ProjectType | null>(null);
-  console.log(modalProject);
+
   return (
     <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-24 mb-12">
       <h1 className="font-bold text-5xl">Project</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-6xl">
         {projects.map((project, key) => (
           <ProjectItems
             key={key}

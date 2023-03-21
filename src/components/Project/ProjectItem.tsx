@@ -36,7 +36,7 @@ type Props = {
 
 export default function ProjectItems({ project, onClick }: Props) {
   return (
-    <div className="flex flex-col m-3 project-card min-h-full">
+    <div className="flex flex-col m-3 project-card h-full">
       <Image
         width="600"
         height="0"
