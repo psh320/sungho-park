@@ -18,9 +18,9 @@ export default function ProjectAndroidLink({ link }: Props) {
         className="mr-2"
       >
         <g fill="#a4c639">
-          <use stroke-width="14.4" xlinkHref="#b" stroke="#FFF" />
+          <use strokeWidth="14.4" xlinkHref="#b" stroke="#FFF" />
           <use xlinkHref="#a" transform="scale(-1,1)" />
-          <g id="a" stroke="#FFF" stroke-width="7.2">
+          <g id="a" stroke="#FFF" strokeWidth="7.2">
             <rect
               rx="6.5"
               transform="rotate(29)"
@@ -37,7 +37,7 @@ export default function ProjectAndroidLink({ link }: Props) {
             <rect rx="22" height="182" width="182" y="20" x="-91" />
           </g>
         </g>
-        <g stroke="#FFF" stroke-width="7.2" fill="#FFF">
+        <g stroke="#FFF" strokeWidth="7.2" fill="#FFF">
           <path d="m-95 44.5h190" />
           <circle cx="-42" r="4" />
           <circle cx="42" r="4" />

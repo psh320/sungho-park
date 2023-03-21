@@ -4,10 +4,10 @@ type Props = {
 
 export default function ProjectNotionLink({ link }: Props) {
   return (
-    <a
-      href={link}
-      className="flex flex-row mt-2 hover:font-bold hover:scale-90 duration-100 items-center justify-center"
-      target="_blank"
+    <div
+      // href={link}
+      className="flex flex-row mt-2 hover:font-bold hover:scale-90 duration-100 items-center justify-center cursor-pointer"
+      // target="_blank"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -29,6 +29,6 @@ export default function ProjectNotionLink({ link }: Props) {
         />
       </svg>
       <p className="rounded-md">Read More</p>
-    </a>
+    </div>
   );
 }
