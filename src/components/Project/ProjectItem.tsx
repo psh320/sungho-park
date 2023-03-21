@@ -1,9 +1,11 @@
 import { ProjectType } from "@/pages/project";
 import Image from "next/image";
 import Link from "next/link";
+import ProjectAndroidLink from "./ProjectAndroidLink";
 import ProjectDemoLink from "./ProjectDemoLink";
 import ProjectDuration from "./ProjectDuration";
 import ProjectGitLink from "./ProjectGitLink";
+import ProjectIosLink from "./ProjectIosLink";
 import ProjectNotionLink from "./ProjectNotionLink";
 import ProjectSiteLink from "./ProjectSiteLink";
 import ProjectTags from "./ProjectTags";
@@ -29,9 +31,10 @@ const toBase64 = (str: string) =>
 
 type Props = {
   project: ProjectType;
+  onClick: () => void;
 };
 
-export default function ProjectItems({ project }: Props) {
+export default function ProjectItems({ project, onClick }: Props) {
   return (
     <div className="flex flex-col m-3 project-card min-h-full">
       <Image
@@ -55,7 +58,7 @@ export default function ProjectItems({ project }: Props) {
         <ProjectDuration duration={project.duration} />
 
         <h3 className="text-md">{project.description}</h3>
-        <div className="flex flex-row my-2">
+        <div className="flex flex-row my-2" onClick={onClick}>
           <ProjectNotionLink link={project.projectURL} />
         </div>
         <div className="flex flex-col justify-center items-center my-3">
@@ -66,10 +69,12 @@ export default function ProjectItems({ project }: Props) {
 
         <ProjectTags tags={project.tech} />
 
-        <div className="flex flex-row items-center ">
+        <div className="flex flex-row items-center flex-wrap ">
           {project.site && <ProjectSiteLink link={project.site} />}
           {project.github && <ProjectGitLink link={project.github} />}
           {project.demo && <ProjectDemoLink link={project.demo} />}
+          {project.ios && <ProjectIosLink link={project.ios} />}
+          {project.android && <ProjectAndroidLink link={project.android} />}
         </div>
       </div>
     </div>
