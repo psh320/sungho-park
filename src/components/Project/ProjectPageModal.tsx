@@ -11,6 +11,7 @@ import ProjectDemoLink from "./ProjectDemoLink";
 import ProjectIosLink from "./ProjectIosLink";
 import ProjectAndroidLink from "./ProjectAndroidLink";
 import { ProjectModalHeader } from "./ProjectModalHeader";
+import ReactPlayer from "react-player";
 
 interface Props {
   pageId: string;
@@ -94,6 +95,16 @@ const NotionModal: React.FC<Props> = ({
         case "divider":
           return <div key={result.id} className="border-b w-full my-6"></div>;
 
+        case "video":
+          return (
+            <ReactPlayer
+              url={result.video.external.url}
+              playing={false}
+              muted={true}
+              controls={true}
+            />
+          );
+
         case "bulleted_list_item":
           return (
             <li key={result.id} className="my-2">
@@ -135,6 +146,7 @@ const NotionModal: React.FC<Props> = ({
           mode: "cors",
         });
         const data: any = await response.json();
+        console.log(data);
         setPageContent(data);
       } catch (error) {
         console.error(error);
