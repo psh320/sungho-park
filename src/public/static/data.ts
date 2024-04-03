@@ -65,8 +65,7 @@ export const projectsList: ProjectType[] = [
       "It is an working Website where you can try simulating trade of cryptocurrency based on real-time market and perform backtesting using custom auto trade algorithm with this website’s SDK. The server is being deployed using GCP with docker container and web is hosted using firebase.",
     projectURL:
       "https://www.notion.so/CityStocker-3aa942ac1eb94f258a11873781c9a76e",
-    coverImage:
-      "https://prod-files-secure.s3.us-west-2.amazonaws.com/a0ec525b-c9f2-436c-aef9-ca870ef1a69f/90babf93-fb27-480d-8bb1-6e80daa0404d/Optimized-%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2023-03-16_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_10.31.34.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240403%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240403T193700Z&X-Amz-Expires=3600&X-Amz-Signature=d89989c5c52019c9c6500da7da9229d8520850bfcb7be3c8ab462b464b2f53a0&X-Amz-SignedHeaders=host&x-id=GetObject",
+    coverImage: "",
   },
   {
     id: "d4d527a1-bca1-4961-98dc-7264a06c7a78",
@@ -107,8 +106,7 @@ export const projectsList: ProjectType[] = [
       "A portfolio website built with Next.js and Tailwind CSS. The data of portfolios are received from Notion API by SSR.",
     projectURL:
       "https://www.notion.so/Portfolio-Website-d4d527a1bca1496198dc7264a06c7a78",
-    coverImage:
-      "https://prod-files-secure.s3.us-west-2.amazonaws.com/a0ec525b-c9f2-436c-aef9-ca870ef1a69f/3e669622-8dc8-42c9-a910-fd612e364b32/porfolio.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240403%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240403T193700Z&X-Amz-Expires=3600&X-Amz-Signature=2fda46b09777c55a45a9f67ff028548cf806cbbbd9ca4d40aa11af6e78129851&X-Amz-SignedHeaders=host&x-id=GetObject",
+    coverImage: "",
   },
   {
     id: "9bc40da0-5590-4bb6-9ce0-1b6bf06859f5",
@@ -149,8 +147,7 @@ export const projectsList: ProjectType[] = [
       "Barcoder is React-Native app that support offline to online commerce that allows us to scan the barcode of product and find its online retail easily.",
     projectURL:
       "https://www.notion.so/Barcoder-9bc40da055904bb69ce01b6bf06859f5",
-    coverImage:
-      "https://prod-files-secure.s3.us-west-2.amazonaws.com/a0ec525b-c9f2-436c-aef9-ca870ef1a69f/9e86f2e1-d827-4634-8931-43bbd610f3e4/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2023-03-16_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_10.58.56.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240403%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240403T193700Z&X-Amz-Expires=3600&X-Amz-Signature=8a22f2c318e6bc130b86c727ea506026a2e676124acd151ea807b8f9a0a5a09c&X-Amz-SignedHeaders=host&x-id=GetObject",
+    coverImage: "",
   },
   {
     id: "7e693623-b11b-4973-b40b-0d98434ea46b",
@@ -196,7 +193,6 @@ export const projectsList: ProjectType[] = [
       "Bobplace is an app that uses gamification to encourage users to go outside to have the meals to and solve the problem of delivery fee.",
     projectURL:
       "https://www.notion.so/BobPlace-7e693623b11b4973b40b0d98434ea46b",
-    coverImage:
-      "https://prod-files-secure.s3.us-west-2.amazonaws.com/a0ec525b-c9f2-436c-aef9-ca870ef1a69f/4cb1905b-fe90-4b6a-95d2-86e627f028b3/Frame_6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240403%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240403T193700Z&X-Amz-Expires=3600&X-Amz-Signature=aad3ea36b6ac03ee3d688f1bd86df5632571558859bf0c361bd6480026bfdd7b&X-Amz-SignedHeaders=host&x-id=GetObject",
+    coverImage: "",
   },
 ];
