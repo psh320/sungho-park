@@ -32,9 +32,6 @@ export default function Introduction() {
           </button>
         </div>
       </div>
-      <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 z-0">
-        <Animation />
-      </div>
     </>
   );
 }
