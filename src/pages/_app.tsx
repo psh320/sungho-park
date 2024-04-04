@@ -3,9 +3,10 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "next-themes";
+import { appWithTranslation } from "next-i18next";
 import Head from "next/head";
 
-export default function App({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
   return (
     <ThemeProvider>
       <Layout>
@@ -23,4 +24,6 @@ export default function App({ Component, pageProps }: AppProps) {
       </Layout>
     </ThemeProvider>
   );
-}
+};
+
+export default appWithTranslation(App);

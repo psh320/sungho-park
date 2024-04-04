@@ -2,7 +2,7 @@ import ProjectItems from "@/components/Project/ProjectItem";
 import NotionModal from "@/components/Project/ProjectPageModal";
 import { GetStaticProps } from "next";
 import { useEffect, useState } from "react";
-import { TOKEN, DATABASE_ID } from "../config/index";
+import { TOKEN, DATABASE_ID } from "../../config/index";
 import { projectsList } from "@/public/static/data";
 
 export type ProjectType = {
