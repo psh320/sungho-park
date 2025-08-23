@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTypewriter } from "../../hooks/useTypewriter";
 import { useCommandAutocomplete } from "../../hooks/useCommandAutocomplete";
+import { useFullscreen } from "../../hooks/useFullscreen";
 import { executeCommand, getIntroText } from "./terminalCommands";
 import { TerminalHeader } from "./TerminalHeader";
 import { TerminalInput } from "./TerminalInput";
@@ -21,6 +22,7 @@ const AVAILABLE_COMMANDS = [
   "experience",
   "help",
   "clear",
+  "fullscreen",
 ] as const;
 
 export default function Terminal({ isVisible, onClose }: TerminalProps) {
@@ -28,6 +30,7 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
 
   const { typedText, isTyping, startTyping, clearText } = useTypewriter();
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const {
     suggestions,
@@ -46,6 +49,19 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
   }, [isVisible, startTyping]);
 
   const handleCommandSubmit = (submittedCommand: string) => {
+    const normalizedCommand = submittedCommand.trim().toLowerCase();
+
+    // Handle fullscreen command specially since it needs access to toggleFullscreen
+    if (normalizedCommand === "fullscreen") {
+      toggleFullscreen();
+      const currentText = typedText;
+      const newContent = `\n\n$ ${submittedCommand}\nFullscreen mode toggled! You can also use F11 key or click the fullscreen button in the header.\n`;
+      startTyping(newContent, currentText);
+      setCommand("");
+      clearSuggestions();
+      return;
+    }
+
     const { response, shouldClear } = executeCommand(submittedCommand);
 
     if (shouldClear) {
@@ -66,17 +82,27 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
 
   if (!isVisible) return null;
 
+  // Determine terminal styling based on fullscreen state
+  const containerClasses = isFullscreen
+    ? "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+    : "flex items-center justify-center min-h-screen pt-24";
+
+  const terminalClasses = isFullscreen
+    ? "bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full h-full flex flex-col max-w-none max-h-none"
+    : "bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-[700px] h-[500px] flex flex-col";
+
+  const terminalStyle = isFullscreen
+    ? { width: "95vw", height: "95vh" }
+    : { width: `${TERMINAL_WIDTH_PX}px`, height: `${TERMINAL_HEIGHT_PX}px` };
+
   return (
-    <div className="flex items-center justify-center min-h-screen pt-24">
-      <div
-        ref={terminalRef}
-        className="bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-[700px] h-[500px] flex flex-col"
-        style={{
-          width: `${TERMINAL_WIDTH_PX}px`,
-          height: `${TERMINAL_HEIGHT_PX}px`,
-        }}
-      >
-        <TerminalHeader onClose={onClose} />
+    <div className={containerClasses}>
+      <div ref={terminalRef} className={terminalClasses} style={terminalStyle}>
+        <TerminalHeader
+          isFullscreen={isFullscreen}
+          onClose={onClose}
+          onToggleFullscreen={toggleFullscreen}
+        />
 
         {/* Terminal Content */}
         <div className="flex-1 flex flex-col overflow-y-auto">
