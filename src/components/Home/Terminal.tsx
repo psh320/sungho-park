@@ -86,6 +86,17 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     }
   }, [command]);
 
+  // Get the current suggestion for inline display
+  const getCurrentSuggestion = () => {
+    if (suggestions.length > 0 && command.trim()) {
+      const suggestion = suggestions[selectedSuggestion];
+      if (suggestion.toLowerCase().startsWith(command.toLowerCase())) {
+        return suggestion.slice(command.length);
+      }
+    }
+    return "";
+  };
+
   const handleCommand = (e: React.FormEvent) => {
     e.preventDefault();
     const cmd = command.trim().toLowerCase();
@@ -146,6 +157,15 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     }
   };
 
+  // Handle clicking on the suggestion to complete it
+  const handleSuggestionClick = () => {
+    if (suggestions.length > 0) {
+      setCommand(suggestions[selectedSuggestion]);
+      setSuggestions([]);
+      inputRef.current?.focus();
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -193,42 +213,40 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
         </div>
         {/* Command Input - Fixed at bottom */}
         <div className="border-t border-gray-300 dark:border-gray-600 p-4">
-          <div className="relative">
-            {suggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 mb-1 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg">
-                {suggestions.map((suggestion, index) => (
-                  <div
-                    key={suggestion}
-                    className={`px-3 py-1 cursor-pointer ${
-                      index === selectedSuggestion
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-300 dark:hover:bg-gray-700"
-                    }`}
-                    onClick={() => {
-                      setCommand(suggestion);
-                      setSuggestions([]);
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    {suggestion}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
           <form onSubmit={handleCommand} className="flex items-center">
             <span className="mr-2">$</span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter command (try 'help')"
-              className="bg-transparent outline-none flex-1 placeholder-gray-500 dark:placeholder-green-300"
-              autoFocus
-            />
+            <div className="relative flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={command}
+                onChange={(e) => setCommand(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter command (try 'help')"
+                className="bg-transparent outline-none w-full placeholder-gray-500 dark:placeholder-green-300 relative z-10"
+                autoFocus
+              />
+              {/* Inline suggestion overlay */}
+              {getCurrentSuggestion() && (
+                <div className="absolute inset-0 flex items-center pointer-events-none">
+                  <span className="invisible">{command}</span>
+                  <span
+                    className="text-gray-400 dark:text-gray-500 cursor-pointer pointer-events-auto"
+                    onClick={handleSuggestionClick}
+                  >
+                    {getCurrentSuggestion()}
+                  </span>
+                </div>
+              )}
+            </div>
           </form>
+          {/* Show available suggestions count */}
+          {suggestions.length > 1 && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {suggestions.length} suggestions available (↑↓ to navigate, Tab to
+              complete)
+            </div>
+          )}
         </div>
       </div>
     </div>
