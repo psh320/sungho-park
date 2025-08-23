@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "next-themes";
 
 interface TerminalProps {
@@ -15,10 +15,42 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedSuggestion, setSelectedSuggestion] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
+  const [textToType, setTextToType] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const { theme } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Typewriter effect function for new content only
+  const startTyping = useCallback((newText: string, baseText: string = "") => {
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
+
+    setIsTyping(true);
+    setTextToType(newText);
+    setCurrentIndex(0);
+
+    let index = 0;
+
+    const typeEffect = () => {
+      if (index < newText.length) {
+        setTypedText(baseText + newText.slice(0, index + 1));
+        index++;
+      } else {
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
+        }
+        setIsTyping(false);
+        inputRef.current?.focus();
+      }
+    };
+
+    typingIntervalRef.current = setInterval(typeEffect, 20);
+  }, []);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -32,22 +64,14 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     ];
 
     const fullText = introText.join("\n");
-    let currentIndex = 0;
+    startTyping(fullText);
 
-    const typeEffect = () => {
-      if (currentIndex < fullText.length) {
-        setTypedText(fullText.slice(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-        setIsTyping(false);
-        inputRef.current?.focus();
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
       }
     };
-
-    const interval = setInterval(typeEffect, 20);
-    return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, startTyping]);
 
   // Command autocomplete logic
   useEffect(() => {
@@ -87,12 +111,17 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
       case "clear":
         setTypedText("");
         setCommand("");
+        setSuggestions([]);
         return;
       default:
         response = `Command '${command}' not found. Type 'help' to see available commands.`;
     }
 
-    setTypedText((prev) => prev + `\n$ ${command}\n${response}\n`);
+    // Only animate the new content (command + response)
+    const currentText = typedText;
+    const newContent = `\n\n$ ${command}\n${response}\n`;
+
+    startTyping(newContent, currentText);
     setCommand("");
     setSuggestions([]);
   };
@@ -154,39 +183,40 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
             </button>
           </div>
         </div>
+
         {/* Terminal Content */}
-        <div className="flex-1 flex flex-col p-6 overflow-y-auto ">
-          <div className="flex-1 whitespace-pre-line mb-4">
+        <div className="flex-1 flex flex-col overflow-y-auto">
+          <div className="flex-1 whitespace-pre-line p-6 pb-2">
             {typedText}
             {isTyping && <span className="animate-pulse ml-1">|</span>}
           </div>
         </div>
-
-        {/* Command Input */}
-        <div className="relative">
-          {suggestions.length > 0 && (
-            <div className="absolute bottom-full left-0 mb-1 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={suggestion}
-                  className={`px-3 py-1 cursor-pointer ${
-                    index === selectedSuggestion
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-300 dark:hover:bg-gray-700"
-                  }`}
-                  onClick={() => {
-                    setCommand(suggestion);
-                    setSuggestions([]);
-                    inputRef.current?.focus();
-                  }}
-                >
-                  {suggestion}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <form onSubmit={handleCommand} className="flex items-center p-1">
+        {/* Command Input - Fixed at bottom */}
+        <div className="border-t border-gray-300 dark:border-gray-600 p-4">
+          <div className="relative">
+            {suggestions.length > 0 && (
+              <div className="absolute bottom-full left-0 mb-1 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={suggestion}
+                    className={`px-3 py-1 cursor-pointer ${
+                      index === selectedSuggestion
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-300 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => {
+                      setCommand(suggestion);
+                      setSuggestions([]);
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <form onSubmit={handleCommand} className="flex items-center">
             <span className="mr-2">$</span>
             <input
               ref={inputRef}
