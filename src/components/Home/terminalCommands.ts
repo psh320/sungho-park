@@ -6,7 +6,7 @@ const COMMAND_RESPONSES = {
     "Technical Skills:\n• Frontend: React, TypeScript, JavaScript, HTML5, CSS3, Tailwind CSS\n• Tools: Git, Webpack, Vite, npm/yarn\n• Other: RESTful APIs, Responsive Design, Performance Optimization",
   experience:
     "Professional Experience:\n• 2+ years as Frontend Engineer\n• Specialized in building user-friendly interfaces\n• Experience with modern development workflows\n• Focus on performance and accessibility",
-  help: "Available commands:\n• about - Learn more about me\n• skills - View my technical skills\n• experience - See my work experience\n• clear - Clear the terminal\n• fullscreen - Toggle fullscreen mode (F11)\n• help - Show this help message",
+  help: "Available commands:\n• about - Learn more about me\n• skills - View my technical skills\n• experience - See my work experience\n• clear - Clear the terminal\n• fullscreen - Expand/collapse terminal (F11)\n• help - Show this help message",
 } as const;
 
 export type CommandType = keyof typeof COMMAND_RESPONSES | "clear";

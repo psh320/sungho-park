@@ -55,7 +55,7 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     if (normalizedCommand === "fullscreen") {
       toggleFullscreen();
       const currentText = typedText;
-      const newContent = `\n\n$ ${submittedCommand}\nFullscreen mode toggled! You can also use F11 key or click the fullscreen button in the header.\n`;
+      const newContent = `\n\n$ ${submittedCommand}\nTerminal expanded! You can also use F11 key or click the green button in the header.\n`;
       startTyping(newContent, currentText);
       setCommand("");
       clearSuggestions();
@@ -84,15 +84,15 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
 
   // Determine terminal styling based on fullscreen state
   const containerClasses = isFullscreen
-    ? "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+    ? "flex items-start justify-center min-h-screen pt-24 px-4"
     : "flex items-center justify-center min-h-screen pt-24";
 
   const terminalClasses = isFullscreen
-    ? "bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full h-full flex flex-col max-w-none max-h-none"
+    ? "bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col"
     : "bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-[700px] h-[500px] flex flex-col";
 
   const terminalStyle = isFullscreen
-    ? { width: "95vw", height: "95vh" }
+    ? { width: "100%", height: "calc(100vh - 8rem)" } // Full width, height minus header space
     : { width: `${TERMINAL_WIDTH_PX}px`, height: `${TERMINAL_HEIGHT_PX}px` };
 
   return (
