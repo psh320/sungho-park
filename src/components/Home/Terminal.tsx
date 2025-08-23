@@ -1,169 +1,67 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useTheme } from "next-themes";
+import { useState, useEffect, useRef } from "react";
+import { useTypewriter } from "../../hooks/useTypewriter";
+import { useCommandAutocomplete } from "../../hooks/useCommandAutocomplete";
+import { executeCommand, getIntroText } from "./terminalCommands";
+import { TerminalHeader } from "./TerminalHeader";
+import { TerminalInput } from "./TerminalInput";
 
 interface TerminalProps {
   isVisible: boolean;
   onClose: () => void;
 }
 
-// Move availableCommands outside component to prevent recreation
-const AVAILABLE_COMMANDS = ["about", "skills", "experience", "help", "clear"];
+// Named constants for magic numbers
+const TERMINAL_WIDTH_PX = 700;
+const TERMINAL_HEIGHT_PX = 500;
+
+// Available commands constant
+const AVAILABLE_COMMANDS = [
+  "about",
+  "skills",
+  "experience",
+  "help",
+  "clear",
+] as const;
 
 export default function Terminal({ isVisible, onClose }: TerminalProps) {
-  const [typedText, setTypedText] = useState("");
   const [command, setCommand] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [selectedSuggestion, setSelectedSuggestion] = useState(0);
-  const [isTyping, setIsTyping] = useState(true);
-  const [textToType, setTextToType] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const { theme } = useTheme();
-  const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
-  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Typewriter effect function for new content only
-  const startTyping = useCallback((newText: string, baseText: string = "") => {
-    if (typingIntervalRef.current) {
-      clearInterval(typingIntervalRef.current);
-    }
+  const { typedText, isTyping, startTyping, clearText } = useTypewriter();
 
-    setIsTyping(true);
-    setTextToType(newText);
-    setCurrentIndex(0);
+  const {
+    suggestions,
+    selectedSuggestion,
+    navigateSuggestions,
+    selectSuggestion,
+    clearSuggestions,
+  } = useCommandAutocomplete(command, AVAILABLE_COMMANDS, setCommand);
 
-    let index = 0;
-
-    const typeEffect = () => {
-      if (index < newText.length) {
-        setTypedText(baseText + newText.slice(0, index + 1));
-        index++;
-      } else {
-        if (typingIntervalRef.current) {
-          clearInterval(typingIntervalRef.current);
-          typingIntervalRef.current = null;
-        }
-        setIsTyping(false);
-        inputRef.current?.focus();
-      }
-    };
-
-    typingIntervalRef.current = setInterval(typeEffect, 20);
-  }, []);
-
+  // Initialize terminal with intro text
   useEffect(() => {
     if (!isVisible) return;
 
-    const introText = [
-      "Hi, I'm Sungho Park",
-      "Frontend Engineer with 2+ years of experience",
-      "Passionate about creating exceptional user experiences",
-      "",
-      "Type 'help' to see available commands or close the terminal if you don't like CLI",
-    ];
-
-    const fullText = introText.join("\n");
-    startTyping(fullText);
-
-    return () => {
-      if (typingIntervalRef.current) {
-        clearInterval(typingIntervalRef.current);
-      }
-    };
+    const introText = getIntroText();
+    startTyping(introText);
   }, [isVisible, startTyping]);
 
-  // Command autocomplete logic
-  useEffect(() => {
-    if (command.trim()) {
-      const filtered = AVAILABLE_COMMANDS.filter((cmd) =>
-        cmd.toLowerCase().startsWith(command.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setSelectedSuggestion(0);
-    } else {
-      setSuggestions([]);
-    }
-  }, [command]);
+  const handleCommandSubmit = (submittedCommand: string) => {
+    const { response, shouldClear } = executeCommand(submittedCommand);
 
-  // Get the current suggestion for inline display
-  const getCurrentSuggestion = () => {
-    if (suggestions.length > 0 && command.trim()) {
-      const suggestion = suggestions[selectedSuggestion];
-      if (suggestion.toLowerCase().startsWith(command.toLowerCase())) {
-        return suggestion.slice(command.length);
-      }
-    }
-    return "";
-  };
-
-  const handleCommand = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cmd = command.trim().toLowerCase();
-
-    let response = "";
-    switch (cmd) {
-      case "about":
-        response =
-          "Frontend Engineer with 2+ years of experience specializing in React, TypeScript, and modern web technologies. Passionate about creating exceptional user experiences and writing clean, maintainable code.";
-        break;
-      case "skills":
-        response =
-          "Technical Skills:\n• Frontend: React, TypeScript, JavaScript, HTML5, CSS3, Tailwind CSS\n• Tools: Git, Webpack, Vite, npm/yarn\n• Other: RESTful APIs, Responsive Design, Performance Optimization";
-        break;
-      case "experience":
-        response =
-          "Professional Experience:\n• 2+ years as Frontend Engineer\n• Specialized in building user-friendly interfaces\n• Experience with modern development workflows\n• Focus on performance and accessibility";
-        break;
-      case "help":
-        response =
-          "Available commands:\n• about - Learn more about me\n• skills - View my technical skills\n• experience - See my work experience\n• clear - Clear the terminal\n• help - Show this help message";
-        break;
-      case "clear":
-        setTypedText("");
-        setCommand("");
-        setSuggestions([]);
-        return;
-      default:
-        response = `Command '${command}' not found. Type 'help' to see available commands.`;
+    if (shouldClear) {
+      clearText();
+      setCommand("");
+      clearSuggestions();
+      return;
     }
 
     // Only animate the new content (command + response)
     const currentText = typedText;
-    const newContent = `\n\n$ ${command}\n${response}\n`;
+    const newContent = `\n\n$ ${submittedCommand}\n${response}\n`;
 
     startTyping(newContent, currentText);
     setCommand("");
-    setSuggestions([]);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (suggestions.length > 0) {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        setCommand(suggestions[selectedSuggestion]);
-        setSuggestions([]);
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedSuggestion((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedSuggestion((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
-      }
-    }
-  };
-
-  // Handle clicking on the suggestion to complete it
-  const handleSuggestionClick = () => {
-    if (suggestions.length > 0) {
-      setCommand(suggestions[selectedSuggestion]);
-      setSuggestions([]);
-      inputRef.current?.focus();
-    }
+    clearSuggestions();
   };
 
   if (!isVisible) return null;
@@ -173,36 +71,12 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
       <div
         ref={terminalRef}
         className="bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-[700px] h-[500px] flex flex-col"
+        style={{
+          width: `${TERMINAL_WIDTH_PX}px`,
+          height: `${TERMINAL_HEIGHT_PX}px`,
+        }}
       >
-        {/* Terminal Header */}
-        <div className="flex items-center justify-between bg-gray-200 dark:bg-gray-800 px-4 py-2 border-b border-gray-300 dark:border-gray-600 rounded-t-lg">
-          <div className="flex items-center space-x-2">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-4">
-              Sungho Park Terminal
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={onClose}
-              className="p-1 hover:bg-red-500 hover:text-white rounded"
-              title="Close Terminal"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <TerminalHeader onClose={onClose} />
 
         {/* Terminal Content */}
         <div className="flex-1 flex flex-col overflow-y-auto">
@@ -211,43 +85,17 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
             {isTyping && <span className="animate-pulse ml-1">|</span>}
           </div>
         </div>
-        {/* Command Input - Fixed at bottom */}
-        <div className="border-t border-gray-300 dark:border-gray-600 p-4">
-          <form onSubmit={handleCommand} className="flex items-center">
-            <span className="mr-2">$</span>
-            <div className="relative flex-1">
-              <input
-                ref={inputRef}
-                type="text"
-                value={command}
-                onChange={(e) => setCommand(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter command (try 'help')"
-                className="bg-transparent outline-none w-full placeholder-gray-500 dark:placeholder-green-300 relative z-10"
-                autoFocus
-              />
-              {/* Inline suggestion overlay */}
-              {getCurrentSuggestion() && (
-                <div className="absolute inset-0 flex items-center pointer-events-none">
-                  <span className="invisible">{command}</span>
-                  <span
-                    className="text-gray-400 dark:text-gray-500 cursor-pointer pointer-events-auto"
-                    onClick={handleSuggestionClick}
-                  >
-                    {getCurrentSuggestion()}
-                  </span>
-                </div>
-              )}
-            </div>
-          </form>
-          {/* Show available suggestions count */}
-          {suggestions.length > 1 && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {suggestions.length} suggestions available (↑↓ to navigate, Tab to
-              complete)
-            </div>
-          )}
-        </div>
+
+        <TerminalInput
+          command={command}
+          suggestions={suggestions}
+          selectedSuggestion={selectedSuggestion}
+          onCommandChange={setCommand}
+          onCommandSubmit={handleCommandSubmit}
+          onSuggestionSelect={selectSuggestion}
+          onSuggestionNavigate={navigateSuggestions}
+          shouldFocus={!isTyping}
+        />
       </div>
     </div>
   );
