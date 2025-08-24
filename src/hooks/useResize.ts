@@ -13,6 +13,7 @@ interface Position {
 interface UseResizeReturn {
   size: Size;
   isResizing: boolean;
+  positionOffset: Position;
   resizeHandlers: {
     onMouseDown: (direction: ResizeDirection) => (e: React.MouseEvent) => void;
   };
@@ -37,11 +38,16 @@ export function useResize({
   onResize,
 }: UseResizeOptions): UseResizeReturn {
   const [size, setSize] = useState<Size>(initialSize);
+  const [positionOffset, setPositionOffset] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef<{
     direction: ResizeDirection;
     startSize: Size;
     startPosition: Position;
+    startOffset: Position;
   } | null>(null);
 
   const constrainSize = useCallback(
@@ -61,24 +67,50 @@ export function useResize({
     (e: MouseEvent) => {
       if (!resizeRef.current) return;
 
-      const { direction, startSize, startPosition } = resizeRef.current;
+      const { direction, startSize, startPosition, startOffset } =
+        resizeRef.current;
       const deltaX = e.clientX - startPosition.x;
       const deltaY = e.clientY - startPosition.y;
 
       let newWidth = startSize.width;
       let newHeight = startSize.height;
+      let newOffsetX = startOffset.x;
+      let newOffsetY = startOffset.y;
 
-      // Calculate new dimensions based on resize direction
-      if (direction.includes("e")) newWidth = startSize.width + deltaX;
-      if (direction.includes("w")) newWidth = startSize.width - deltaX;
-      if (direction.includes("s")) newHeight = startSize.height + deltaY;
-      if (direction.includes("n")) newHeight = startSize.height - deltaY;
+      // Calculate new dimensions and position offsets based on resize direction
+      if (direction.includes("e")) {
+        newWidth = startSize.width + deltaX;
+      }
+      if (direction.includes("w")) {
+        newWidth = startSize.width - deltaX;
+        newOffsetX = startOffset.x + deltaX;
+      }
+      if (direction.includes("s")) {
+        newHeight = startSize.height + deltaY;
+      }
+      if (direction.includes("n")) {
+        newHeight = startSize.height - deltaY;
+        newOffsetY = startOffset.y + deltaY;
+      }
 
       const constrainedSize = constrainSize({
         width: newWidth,
         height: newHeight,
       });
+
+      // Adjust position offset if size was constrained
+      const widthDiff = newWidth - constrainedSize.width;
+      const heightDiff = newHeight - constrainedSize.height;
+
+      if (direction.includes("w") && widthDiff !== 0) {
+        newOffsetX = startOffset.x + deltaX - widthDiff;
+      }
+      if (direction.includes("n") && heightDiff !== 0) {
+        newOffsetY = startOffset.y + deltaY - heightDiff;
+      }
+
       setSize(constrainedSize);
+      setPositionOffset({ x: newOffsetX, y: newOffsetY });
       onResize?.(constrainedSize);
     },
     [constrainSize, onResize]
@@ -112,6 +144,7 @@ export function useResize({
         direction,
         startSize: size,
         startPosition: { x: e.clientX, y: e.clientY },
+        startOffset: positionOffset,
       };
 
       // Set cursor based on direction
@@ -128,12 +161,13 @@ export function useResize({
 
       document.body.style.cursor = cursorMap[direction];
     },
-    [size]
+    [size, positionOffset]
   );
 
   return {
     size,
     isResizing,
+    positionOffset,
     resizeHandlers: {
       onMouseDown,
     },

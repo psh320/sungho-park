@@ -4,6 +4,7 @@ interface TerminalHeaderProps {
   isFullscreen: boolean;
   onClose: () => void;
   onToggleFullscreen: () => void;
+  onDragStart?: (e: React.MouseEvent) => void;
 }
 
 const BUTTON_SIZE_CLASS = "w-3.5 h-3.5"; // 12px equivalent
@@ -12,16 +13,21 @@ export function TerminalHeader({
   isFullscreen,
   onClose,
   onToggleFullscreen,
+  onDragStart,
 }: TerminalHeaderProps) {
   const headerClasses =
     "flex items-center justify-between bg-gray-200 dark:bg-gray-800 px-4 py-2 border-b border-gray-300 dark:border-gray-600 rounded-t-lg";
 
   return (
-    <div className={headerClasses}>
+    <div
+      className={`${headerClasses} ${!isFullscreen ? "cursor-move" : ""}`}
+      onMouseDown={!isFullscreen ? onDragStart : undefined}
+    >
       <div className="flex items-center space-x-2">
         <div className="flex space-x-2 group">
           <button
             onClick={onClose}
+            onMouseDown={(e) => e.stopPropagation()}
             className={`${BUTTON_SIZE_CLASS} bg-red-500 rounded-full hover:bg-red-600 transition-colors flex items-center justify-center`}
             title="Close Terminal"
           >
@@ -42,6 +48,7 @@ export function TerminalHeader({
           </div>
           <button
             onClick={onToggleFullscreen}
+            onMouseDown={(e) => e.stopPropagation()}
             className={`${BUTTON_SIZE_CLASS} bg-green-500 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center`}
             title={
               isFullscreen
