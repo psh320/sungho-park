@@ -16,6 +16,29 @@ export interface ProjectData {
 
 export const projectsData: ProjectData[] = [
   {
+    id: "filmit",
+    title: "Filmit",
+    duration: {
+      start: "2023-05-01",
+      end: "2024-08-31",
+      timezone: null,
+    },
+    github: null,
+    demo: "https://youtu.be/1mQqn7605QI",
+    site: null,
+    ios: null,
+    android: null,
+    tech: [
+      { id: "react-native", name: "React-Native", color: "blue" },
+      { id: "react-query", name: "React-Query", color: "orange" },
+      { id: "recoil", name: "Recoil", color: "brown" },
+      { id: "typescript", name: "Typescript", color: "yellow" },
+    ],
+    description:
+      "Filmit is a mobile app that allows users to take film camera photos and share it with their friends. It is built with React-Native and uses Firebase for authentication and database.",
+    screenshots: [],
+  },
+  {
     id: "citystocker",
     title: "CityStocker",
     duration: {
@@ -25,7 +48,7 @@ export const projectsData: ProjectData[] = [
     },
     github: "https://github.com/psh320/citystocker",
     demo: null,
-    site: "https://stocker-c11e2.web.app/",
+    site: null,
     ios: null,
     android: null,
     tech: [
