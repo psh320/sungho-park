@@ -4,6 +4,7 @@ import { LoadingIndicator } from "../Common/LoadingIndicator";
 import { ProjectModalHeader } from "./ProjectModalHeader";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { X } from "lucide-react";
 
 interface Props {
   project: ProjectData | null;
@@ -16,24 +17,10 @@ function ModalCloseButton({ onClose }: { onClose: () => void }) {
   return (
     <button
       onClick={onClose}
-      className="fixed top-4 right-4 cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+      className="fixed top-4 right-4 cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 z-10"
       aria-label="Close modal"
     >
-      <svg
-        className="h-6 w-6 text-gray-500 dark:text-gray-200"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        strokeWidth="2"
-        stroke="currentColor"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path stroke="none" d="M0 0h24v24H0z" />
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
+      <X className="h-6 w-6 text-gray-500 dark:text-gray-200" />
     </button>
   );
 }

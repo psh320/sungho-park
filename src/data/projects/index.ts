@@ -10,6 +10,7 @@ export interface ProjectData {
   description: string | null;
   coverImage: string | null;
   site: string | null;
+  screenshots?: string[]; // Array of screenshot URLs/paths
   readmeContent?: string;
 }
 
@@ -40,8 +41,15 @@ export const projectsData: ProjectData[] = [
     ],
     description:
       "A working website where you can simulate cryptocurrency trading based on real-time market data and perform backtesting using custom auto-trade algorithms with this website's SDK. The server is deployed using GCP with Docker containers and the web app is hosted using Firebase.",
-    coverImage:
-      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&h=400&fit=crop&crop=center",
+    coverImage: "/images/screenshots/citystocker.png",
+    screenshots: [
+      "/images/screenshots/citystocker.png",
+      "/images/screenshots/citystocker-list.png",
+      "/images/screenshots/citystocker-chart.png",
+      "/images/screenshots/citystocker-input.png",
+      "/images/screenshots/citystocker-backtest.png",
+      "/images/screenshots/citystocker-code.png",
+    ],
   },
   {
     id: "portfolio-website",
@@ -65,6 +73,10 @@ export const projectsData: ProjectData[] = [
       "A modern portfolio website built with Next.js and Tailwind CSS. Features a terminal-like interface, dark mode support, and responsive design. Now uses local markdown files instead of Notion API for better performance and independence.",
     coverImage:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center",
+    screenshots: [
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop&crop=center",
+    ],
   },
   {
     id: "barcoder",
