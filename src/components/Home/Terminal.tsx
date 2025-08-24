@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { useTypewriter } from "../../hooks/useTypewriter";
 import { useCommandAutocomplete } from "../../hooks/useCommandAutocomplete";
 import { useFullscreen } from "../../hooks/useFullscreen";
+import { useResize } from "../../hooks/useResize";
 import { executeCommand, getIntroText } from "./terminalCommands";
 import { TerminalHeader } from "./TerminalHeader";
 import { TerminalInput } from "./TerminalInput";
+import { ResizeHandles } from "./ResizeHandles";
 
 interface TerminalProps {
   isVisible: boolean;
@@ -31,6 +33,12 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
 
   const { typedText, isTyping, startTyping, clearText } = useTypewriter();
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+
+  const { size, isResizing, resizeHandlers } = useResize({
+    initialSize: { width: TERMINAL_WIDTH_PX, height: TERMINAL_HEIGHT_PX },
+    minSize: { width: 400, height: 300 },
+    maxSize: { width: 1200, height: 800 },
+  });
 
   const {
     suggestions,
@@ -88,16 +96,20 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     : "flex items-center justify-center min-h-screen pt-24";
 
   const terminalClasses = isFullscreen
-    ? "bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col"
-    : "bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-[700px] h-[500px] flex flex-col";
+    ? "relative bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col"
+    : "relative bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col";
 
   const terminalStyle = isFullscreen
     ? { width: "100%", height: "calc(100vh - 8rem)" } // Full width, height minus header space
-    : { width: `${TERMINAL_WIDTH_PX}px`, height: `${TERMINAL_HEIGHT_PX}px` };
+    : { width: `${size.width}px`, height: `${size.height}px` };
 
   return (
     <div className={containerClasses}>
-      <div ref={terminalRef} className={terminalClasses} style={terminalStyle}>
+      <div
+        ref={terminalRef}
+        className={`${terminalClasses} ${isResizing ? "select-none" : ""}`}
+        style={terminalStyle}
+      >
         <TerminalHeader
           isFullscreen={isFullscreen}
           onClose={onClose}
@@ -122,6 +134,11 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
           onSuggestionNavigate={navigateSuggestions}
           shouldFocus={!isTyping}
         />
+
+        {/* Resize handles - only show when not in fullscreen */}
+        {!isFullscreen && (
+          <ResizeHandles onMouseDown={resizeHandlers.onMouseDown} />
+        )}
       </div>
     </div>
   );
