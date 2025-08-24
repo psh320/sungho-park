@@ -13,6 +13,18 @@ const PROJECT_IMAGE_HEIGHT = "250px";
 const PLACEHOLDER_IMAGE_URL =
   "https://www.grouphealth.ca/wp-content/uploads/2018/05/placeholder-image.png";
 
+// Background colors for projects without cover images
+const PROJECT_BACKGROUND_COLORS = [
+  "bg-gradient-to-br from-blue-500 to-purple-600",
+  "bg-gradient-to-br from-green-500 to-teal-600",
+  "bg-gradient-to-br from-orange-500 to-red-600",
+  "bg-gradient-to-br from-pink-500 to-rose-600",
+  "bg-gradient-to-br from-indigo-500 to-blue-600",
+  "bg-gradient-to-br from-purple-500 to-pink-600",
+  "bg-gradient-to-br from-teal-500 to-green-600",
+  "bg-gradient-to-br from-yellow-500 to-orange-600",
+];
+
 type Props = {
   project: ProjectData;
   onViewDetails: () => void; // More descriptive name
@@ -54,25 +66,59 @@ function ProjectDivider() {
   );
 }
 
+// Component for projects without cover images - shows title with gradient background
+function ProjectPlaceholder({
+  title,
+  projectId,
+}: {
+  title: string;
+  projectId: string;
+}) {
+  // Generate consistent color based on project ID
+  const colorIndex =
+    projectId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+    PROJECT_BACKGROUND_COLORS.length;
+  const backgroundClass = PROJECT_BACKGROUND_COLORS[colorIndex];
+
+  return (
+    <div
+      className={`w-full rounded-t-xl flex items-center justify-center ${backgroundClass}`}
+      style={{ height: PROJECT_IMAGE_HEIGHT }}
+    >
+      <div className="text-center px-6">
+        <h2 className="text-white text-3xl font-bold drop-shadow-lg">
+          {title}
+        </h2>
+        <div className="mt-2 w-16 h-1 bg-white bg-opacity-50 rounded-full mx-auto"></div>
+      </div>
+    </div>
+  );
+}
+
 export default function ProjectItem({ project, onViewDetails }: Props) {
   // Named condition for better readability (Naming Complex Conditions)
   const hasValidCoverImage = Boolean(project.coverImage);
-  const imageSource = hasValidCoverImage
-    ? project.coverImage!
-    : PLACEHOLDER_IMAGE_URL;
 
   return (
     <article className="flex flex-col m-3 project-card h-full bg-white dark:bg-slate-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <Image
-        width={600}
-        height={0}
-        priority
-        style={{ objectFit: "cover", height: PROJECT_IMAGE_HEIGHT }}
-        className="w-full rounded-t-xl"
-        src={imageSource}
-        alt={`${project.title} project screenshot`}
-        quality={50}
-      />
+      {hasValidCoverImage ? (
+        <Image
+          width={600}
+          height={0}
+          priority
+          style={{ objectFit: "cover", height: PROJECT_IMAGE_HEIGHT }}
+          className="w-full rounded-t-xl"
+          src={
+            project.coverImage ||
+            project.screenshots?.[0] ||
+            PLACEHOLDER_IMAGE_URL
+          }
+          alt={`${project.title} project screenshot`}
+          quality={50}
+        />
+      ) : (
+        <ProjectPlaceholder title={project.title} projectId={project.id} />
+      )}
 
       <div className="p-4 flex flex-col flex-grow">
         <header className="mb-4">

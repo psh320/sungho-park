@@ -8,9 +8,9 @@ export interface ProjectData {
   android: string | null;
   tech: { id: string; color: string; name: string }[];
   description: string | null;
-  coverImage: string | null;
   site: string | null;
   screenshots?: string[]; // Array of screenshot URLs/paths
+  coverImage?: string | null;
   readmeContent?: string;
 }
 
@@ -41,41 +41,13 @@ export const projectsData: ProjectData[] = [
     ],
     description:
       "A working website where you can simulate cryptocurrency trading based on real-time market data and perform backtesting using custom auto-trade algorithms with this website's SDK. The server is deployed using GCP with Docker containers and the web app is hosted using Firebase.",
-    coverImage: "/images/screenshots/citystocker.png",
     screenshots: [
-      "/images/screenshots/citystocker.png",
-      "/images/screenshots/citystocker-list.png",
-      "/images/screenshots/citystocker-chart.png",
-      "/images/screenshots/citystocker-input.png",
-      "/images/screenshots/citystocker-backtest.png",
-      "/images/screenshots/citystocker-code.png",
-    ],
-  },
-  {
-    id: "portfolio-website",
-    title: "Portfolio Website",
-    duration: {
-      start: "2023-03-09",
-      end: "2023-03-11",
-      timezone: null,
-    },
-    github: "https://github.com/psh320/sungho-park",
-    demo: null,
-    site: "https://sungho-park.vercel.app/",
-    ios: null,
-    android: null,
-    tech: [
-      { id: "nextjs", name: "Next.js", color: "green" },
-      { id: "typescript", name: "Typescript", color: "yellow" },
-      { id: "tailwind", name: "Tailwind CSS", color: "gray" },
-    ],
-    description:
-      "A modern portfolio website built with Next.js and Tailwind CSS. Features a terminal-like interface, dark mode support, and responsive design. Now uses local markdown files instead of Notion API for better performance and independence.",
-    coverImage:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center",
-    screenshots: [
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop&crop=center",
+      "/images/screenshots/citystocker/citystocker.png",
+      "/images/screenshots/citystocker/citystocker-list.png",
+      "/images/screenshots/citystocker/citystocker-chart.png",
+      "/images/screenshots/citystocker/citystocker-input.png",
+      "/images/screenshots/citystocker/citystocker-backtest.png",
+      "/images/screenshots/citystocker/citystocker-code.png",
     ],
   },
   {
@@ -99,8 +71,10 @@ export const projectsData: ProjectData[] = [
     ],
     description:
       "Barcoder is a React-Native app that supports offline-to-online commerce, allowing users to scan product barcodes and easily find online retailers.",
-    coverImage:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop&crop=center",
+    screenshots: [
+      "/images/screenshots/barcoder/barcoder1.png",
+      "/images/screenshots/barcoder/barcoder2.png",
+    ],
   },
   {
     id: "bobplace",
@@ -124,7 +98,10 @@ export const projectsData: ProjectData[] = [
     ],
     description:
       "BobPlace is an app that uses gamification to encourage users to go outside to have meals and solve the problem of delivery fees.",
-    coverImage:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop&crop=center",
+    screenshots: [
+      "/images/screenshots/bobplace/bobplace-customer1.png",
+      "/images/screenshots/bobplace/bobplace-customer2.png",
+      "/images/screenshots/bobplace/bobplace-owner.png",
+    ],
   },
 ];

@@ -9,17 +9,61 @@ import ProjectDemoLink from "./ProjectDemoLink";
 import ProjectAndroidLink from "./ProjectAndroidLink";
 import ProjectIosLink from "./ProjectIosLink";
 import { ChevronLeft, ChevronRight, X, Expand } from "lucide-react";
+
+// Background colors for projects without cover images
+const PROJECT_BACKGROUND_COLORS = [
+  "bg-gradient-to-br from-blue-500 to-purple-600",
+  "bg-gradient-to-br from-green-500 to-teal-600",
+  "bg-gradient-to-br from-orange-500 to-red-600",
+  "bg-gradient-to-br from-pink-500 to-rose-600",
+  "bg-gradient-to-br from-indigo-500 to-blue-600",
+  "bg-gradient-to-br from-purple-500 to-pink-600",
+  "bg-gradient-to-br from-teal-500 to-green-600",
+  "bg-gradient-to-br from-yellow-500 to-orange-600",
+];
+
 type Props = {
   project: ProjectData;
 };
+
+// Component for projects without images - shows title with gradient background
+function ProjectModalPlaceholder({
+  title,
+  projectId,
+}: {
+  title: string;
+  projectId: string;
+}) {
+  // Generate consistent color based on project ID
+  const colorIndex =
+    projectId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+    PROJECT_BACKGROUND_COLORS.length;
+  const backgroundClass = PROJECT_BACKGROUND_COLORS[colorIndex];
+
+  return (
+    <div
+      className={`relative w-full h-96 rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden flex items-center justify-center ${backgroundClass}`}
+    >
+      <div className="text-center px-8">
+        <h2 className="text-white text-5xl font-bold drop-shadow-lg mb-4">
+          {title}
+        </h2>
+        <div className="w-24 h-1 bg-white bg-opacity-50 rounded-full mx-auto"></div>
+        <p className="text-white text-lg mt-4 opacity-80">Project Preview</p>
+      </div>
+    </div>
+  );
+}
 
 // Image Slider Component with navigation and keyboard support
 function ProjectImageSlider({
   images,
   title,
+  projectId,
 }: {
   images: string[];
   title: string;
+  projectId: string;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -56,21 +100,8 @@ function ProjectImageSlider({
   }, [isLightboxOpen, goToPrevious, goToNext]);
 
   if (!images || images.length === 0) {
-    // Fallback to placeholder if no images
-    return (
-      <div className="relative w-full h-96 rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
-        <Image
-          width={600}
-          height={400}
-          priority
-          style={{ objectFit: "cover", height: "100%" }}
-          className="w-full"
-          src="https://www.grouphealth.ca/wp-content/uploads/2018/05/placeholder-image.png"
-          alt={`${title} placeholder`}
-          quality={50}
-        />
-      </div>
-    );
+    // Use custom placeholder with gradient background instead of generic image
+    return <ProjectModalPlaceholder title={title} projectId={projectId} />;
   }
 
   return (
@@ -220,7 +251,11 @@ export const ProjectModalHeader = ({ project }: Props) => {
       <ProjectDuration duration={project.duration} />
 
       {/* Image Slider replacing the static image */}
-      <ProjectImageSlider images={images} title={project.title} />
+      <ProjectImageSlider
+        images={images}
+        title={project.title}
+        projectId={project.id}
+      />
 
       <h2 className="font-semibold my-2">Tech Stacks</h2>
       <ProjectTags tags={project.tech} />
