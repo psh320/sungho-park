@@ -1,110 +1,92 @@
-import ProjectItems from "@/components/Project/ProjectItem";
-import NotionModal from "@/components/Project/ProjectPageModal";
+import ProjectItem from "@/components/Project/ProjectItem";
+import ProjectModal from "@/components/Project/ProjectPageModal";
 import { GetStaticProps } from "next";
-import { useEffect, useState } from "react";
-import { TOKEN, DATABASE_ID } from "../../config/index";
+import { useState } from "react";
+import { getAllProjectsWithReadme } from "@/utils/projectUtils";
+import { ProjectData } from "@/data/projects";
 
-export type ProjectType = {
-  id: string;
-  title: string;
-  duration: { start: string; end: string | null; timezone: null };
-  github: string | null;
-  demo: string | null;
-  ios: string | null;
-  android: string | null;
-  tech: { id: string; color: string; name: string }[];
-  description: string | null;
-  projectURL: string;
-  coverImage: string | null;
-  site: string | null;
-};
+// Named constant for better readability
+const REVALIDATION_TIME_SECONDS = 86400; // 24 hours
 
 type Props = {
-  projects: ProjectType[];
+  projects: ProjectData[];
 };
-export default function Project({ projects }: Props) {
+
+// Separate component for project grid (Abstracting Implementation Details)
+function ProjectGrid({
+  projects,
+  onProjectSelect,
+}: {
+  projects: ProjectData[];
+  onProjectSelect: (project: ProjectData) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-6xl">
+      {projects.map((project) => (
+        <ProjectItem
+          key={project.id} // Use project.id instead of array index
+          project={project}
+          onViewDetails={() => onProjectSelect(project)}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Separate component for page header (Cohesion)
+function ProjectPageHeader() {
+  return (
+    <header className="text-center mb-8">
+      <h1 className="font-bold text-5xl text-slate-900 dark:text-white">
+        Projects
+      </h1>
+      <p className="text-lg text-slate-600 dark:text-slate-400 mt-4">
+        Explore my development projects and technical achievements
+      </p>
+    </header>
+  );
+}
+
+export default function ProjectPage({ projects }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pageId, setPageId] = useState("");
-  const [modalProject, setModalProject] = useState<ProjectType | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
+    null
+  );
+
+  // Colocated simple logic (Reducing Eye Movement)
+  const handleProjectSelect = (project: ProjectData) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedProject(null);
+  };
 
   return (
     <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-24 mb-12">
-      <h1 className="font-bold text-5xl">Project</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-6xl">
-        {projects.map((project, key) => (
-          <ProjectItems
-            key={key}
-            project={project}
-            onClick={() => {
-              setPageId(project.id);
-              setModalProject(project);
-              setIsModalOpen(true);
-            }}
-          />
-        ))}
-      </div>
-      <NotionModal
-        project={modalProject}
-        pageId={pageId}
-        visible={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      <ProjectPageHeader />
+
+      <ProjectGrid projects={projects} onProjectSelect={handleProjectSelect} />
+
+      <ProjectModal
+        project={selectedProject}
+        isVisible={isModalOpen}
+        onClose={handleModalClose}
       />
     </div>
   );
 }
 
-//called at build time
-export async function getServerSideProps(context: GetStaticProps) {
-  const options = {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "Notion-Version": "2022-06-28",
-      "content-type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
-    },
-    body: JSON.stringify({
-      page_size: 100,
-      sorts: [
-        {
-          property: "Duration",
-          direction: "descending",
-        },
-      ],
-    }),
-  };
+// Called at build time
+export const getStaticProps: GetStaticProps = async () => {
+  const projects = await getAllProjectsWithReadme();
 
-  const res = await fetch(
-    `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
-    options
-  );
-  const projects = await res.json();
-  const parsedData = parseDatabase(projects.results);
   return {
-    props: { projects: parsedData }, // will be passed to the page component as props
+    props: {
+      projects,
+    },
+    revalidate: REVALIDATION_TIME_SECONDS,
   };
-}
-
-function parseDatabase(data: any): ProjectType[] {
-  return data.map((project: any) => ({
-    id: project.id,
-    title: project.properties.Name.title[0].plain_text,
-    duration: project.properties.Duration.date,
-    github: project.properties.Github.url,
-    demo: project.properties.Demo.url,
-    site: project.properties.Site.url,
-    ios: project.properties.ios.url,
-    android: project.properties.android.url,
-    tech: project.properties.Tech.multi_select,
-    description:
-      project.properties.Description.rich_text.length === 0
-        ? null
-        : project.properties.Description.rich_text[0].plain_text,
-    projectURL: project.url,
-    coverImage: project.cover
-      ? project.cover.external
-        ? project.cover.external.url
-        : project.cover.file.url
-      : null,
-  }));
-}
+};

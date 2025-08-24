@@ -1,4 +1,4 @@
-import { ProjectType } from "@/pages/project";
+import { ProjectData } from "@/data/projects";
 import React from "react";
 import ProjectDuration from "./ProjectDuration";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import ProjectDemoLink from "./ProjectDemoLink";
 import ProjectAndroidLink from "./ProjectAndroidLink";
 import ProjectIosLink from "./ProjectIosLink";
 type Props = {
-  project: ProjectType;
+  project: ProjectData;
 };
 
 export const ProjectModalHeader = ({ project }: Props) => {

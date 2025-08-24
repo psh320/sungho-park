@@ -1,189 +1,163 @@
-import { ProjectType } from "@/pages/project";
-import { useState, useEffect, useMemo } from "react";
-import { TOKEN, DATABASE_ID } from "../../config/index";
+import { ProjectData } from "@/data/projects";
+import { useState, useEffect } from "react";
 import { LoadingIndicator } from "../Common/LoadingIndicator";
-import Image from "next/image";
-import ProjectDuration from "./ProjectDuration";
-import ProjectTags from "./ProjectTags";
-import ProjectSiteLink from "./ProjectSiteLink";
-import ProjectGitLink from "./ProjectGitLink";
-import ProjectDemoLink from "./ProjectDemoLink";
-import ProjectIosLink from "./ProjectIosLink";
-import ProjectAndroidLink from "./ProjectAndroidLink";
 import { ProjectModalHeader } from "./ProjectModalHeader";
-import ReactPlayer from "react-player";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Props {
-  pageId: string;
-  project: ProjectType | null;
-  visible: boolean;
+  project: ProjectData | null;
+  isVisible: boolean; // More descriptive name
   onClose: () => void;
 }
 
-const NOTION_API_KEY = TOKEN;
+// Separate component for close button (Abstracting Implementation Details)
+function ModalCloseButton({ onClose }: { onClose: () => void }) {
+  return (
+    <button
+      onClick={onClose}
+      className="fixed top-4 right-4 cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+      aria-label="Close modal"
+    >
+      <svg
+        className="h-6 w-6 text-gray-500 dark:text-gray-200"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        strokeWidth="2"
+        stroke="currentColor"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  );
+}
 
-const NotionModal: React.FC<Props> = ({
-  pageId,
-  visible,
-  onClose,
-  project,
-}) => {
-  const [pageContent, setPageContent] = useState<any | null>(null);
+// Colocated markdown components configuration (Reducing Eye Movement)
+const MARKDOWN_COMPONENTS = {
+  h1: ({ children }: { children: React.ReactNode }) => (
+    <h1 className="font-extrabold text-4xl my-4 text-slate-900 dark:text-gray-100">
+      {children}
+    </h1>
+  ),
+  h2: ({ children }: { children: React.ReactNode }) => (
+    <h2 className="font-semibold text-2xl my-3 text-slate-800 dark:text-gray-200">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }: { children: React.ReactNode }) => (
+    <h3 className="font-semibold text-lg my-2 text-slate-700 dark:text-gray-300">
+      {children}
+    </h3>
+  ),
+  p: ({ children }: { children: React.ReactNode }) => (
+    <p className="text-slate-700 dark:text-gray-200 my-2 leading-relaxed">
+      {children}
+    </p>
+  ),
+  ul: ({ children }: { children: React.ReactNode }) => (
+    <ul className="list-disc list-inside my-2 text-slate-700 dark:text-gray-200">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children: React.ReactNode }) => (
+    <ol className="list-decimal list-inside my-2 text-slate-700 dark:text-gray-200">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children: React.ReactNode }) => (
+    <li className="my-1">{children}</li>
+  ),
+  strong: ({ children }: { children: React.ReactNode }) => (
+    <strong className="font-semibold text-slate-900 dark:text-gray-100">
+      {children}
+    </strong>
+  ),
+  a: ({ href, children }: { href?: string; children: React.ReactNode }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+    >
+      {children}
+    </a>
+  ),
+  hr: () => (
+    <div className="border-b w-full my-6 border-slate-300 dark:border-slate-600" />
+  ),
+  blockquote: ({ children }: { children: React.ReactNode }) => (
+    <blockquote className="border-l-4 border-slate-300 dark:border-slate-600 pl-4 my-4 italic text-slate-600 dark:text-gray-400">
+      {children}
+    </blockquote>
+  ),
+  code: ({ children }: { children: React.ReactNode }) => (
+    <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm font-mono">
+      {children}
+    </code>
+  ),
+  pre: ({ children }: { children: React.ReactNode }) => (
+    <pre className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto my-4">
+      {children}
+    </pre>
+  ),
+};
 
-  const handleOk = () => {
+// Separate component for markdown content (Abstracting Implementation Details)
+function MarkdownContent({ content }: { content: string }) {
+  return (
+    <div className="prose prose-slate dark:prose-invert max-w-none">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={MARKDOWN_COMPONENTS}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+function ProjectModal({ project, isVisible, onClose }: Props) {
+  const [readmeContent, setReadmeContent] = useState<string>("");
+
+  // Named condition for better readability
+  const hasReadmeContent = Boolean(readmeContent);
+  const shouldShowModal = isVisible && project;
+
+  const handleClose = () => {
     onClose();
-    setPageContent(null);
-  };
-
-  const handleCancel = () => {
-    onClose();
-    setPageContent(null);
-  };
-
-  const memoizedContent = useMemo(() => {
-    if (!pageContent) return null;
-    return pageContent;
-  }, [pageContent]);
-
-  const renderPageContent = () => {
-    const results = memoizedContent.results;
-    if (!results) {
-      return null;
-    }
-    return results.map((result: any) => {
-      switch (result.type) {
-        case "paragraph":
-          return (
-            <p
-              key={result.id}
-              className="text-slate-700 dark:text-gray-200 my-2"
-            >
-              {result.paragraph.rich_text.length === 0 ? (
-                <div className="my-6" />
-              ) : (
-                result.paragraph.rich_text
-                  .map((text: any) => text.plain_text)
-                  .join("")
-              )}
-            </p>
-          );
-        case "heading_1":
-          return (
-            <h1 key={result.id} className="font-extrabold text-4xl my-2">
-              {result.heading_1.rich_text
-                .map((text: any) => text.plain_text)
-                .join("")}
-            </h1>
-          );
-        case "heading_2":
-          return (
-            <h2 key={result.id} className="font-semibold text-2xl my-2">
-              {result.heading_2.rich_text
-                .map((text: any) => text.plain_text)
-                .join("")}
-            </h2>
-          );
-        case "heading_3":
-          return (
-            <h3 key={result.id} className="font-semibold text-lg my-2">
-              {result.heading_3.rich_text
-                .map((text: any) => text.plain_text)
-                .join("")}
-            </h3>
-          );
-
-        case "divider":
-          return <div key={result.id} className="border-b w-full my-6"></div>;
-
-        case "video":
-          return (
-            <ReactPlayer
-              url={result.video.external.url}
-              playing={false}
-              muted={true}
-              controls={true}
-            />
-          );
-
-        case "bulleted_list_item":
-          return (
-            <li key={result.id} className="my-2">
-              {result.bulleted_list_item.rich_text
-                .map((text: any) => text.plain_text)
-                .join("")}
-            </li>
-          );
-
-        case "image":
-          return (
-            <Image
-              width={1000}
-              height={0}
-              priority
-              style={{ objectFit: "contain", maxHeight: 400 }}
-              className="rounded-t-xl"
-              src={result.image.file.url}
-              alt="project image"
-              quality={50}
-            />
-          );
-
-        default:
-          return null;
-      }
-    });
+    setReadmeContent("");
   };
 
   useEffect(() => {
-    const fetchPageContent = async () => {
-      try {
-        const response = await fetch(`/api/notion/blocks/${pageId}`, {
-          headers: {
-            "Notion-Version": "2022-06-28",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${NOTION_API_KEY}`,
-          },
-          mode: "cors",
-        });
-        const data: any = await response.json();
-        console.log(data);
-        setPageContent(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    if (visible) {
-      fetchPageContent();
+    if (isVisible && project?.readmeContent) {
+      setReadmeContent(project.readmeContent);
     }
-  }, [pageId, visible]);
+  }, [isVisible, project]);
 
-  return visible ? (
+  if (!shouldShowModal) return null;
+
+  return (
     <div className="modal">
-      <div className="modal-backdrop" onClick={handleCancel}></div>
+      <div className="modal-backdrop" onClick={handleClose} />
       <div className="modal-content dark:bg-slate-800 bg-white">
-        {project ? <ProjectModalHeader project={project} /> : <></>}
-        {memoizedContent ? renderPageContent() : <LoadingIndicator />}
+        <ProjectModalHeader project={project} />
 
-        <div onClick={handleOk} className="fixed top-4 right-4 cursor-pointer">
-          <svg
-            className="h-8 w-8 text-gray-500 dark:text-gray-200"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" />
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </div>
+        {hasReadmeContent ? (
+          <MarkdownContent content={readmeContent} />
+        ) : (
+          <LoadingIndicator />
+        )}
+
+        <ModalCloseButton onClose={handleClose} />
       </div>
     </div>
-  ) : null;
-};
+  );
+}
 
-export default NotionModal;
+export default ProjectModal;
