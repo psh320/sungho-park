@@ -7,27 +7,20 @@ import { useDrag } from "../../../hooks/useDrag";
 import { executeCommand, getIntroText } from "./terminalCommands";
 import { TerminalHeader } from "./TerminalHeader";
 import { TerminalInput } from "./TerminalInput";
-import { ResizeHandles } from "../ResizeHandles";
+import { ResizeHandles } from "./ResizeHandles";
+import { TERMINAL_CONFIG } from "./constants";
 
 interface TerminalProps {
+  /** Whether the terminal is visible */
   isVisible: boolean;
+  /** Callback when terminal is closed */
   onClose: () => void;
 }
 
-// Named constants for magic numbers
-const TERMINAL_WIDTH_PX = 700;
-const TERMINAL_HEIGHT_PX = 500;
-
-// Available commands constant
-const AVAILABLE_COMMANDS = [
-  "about",
-  "skills",
-  "experience",
-  "help",
-  "clear",
-  "fullscreen",
-] as const;
-
+/**
+ * Terminal component with macOS-style window controls
+ * Features: drag & drop, resize, fullscreen, typewriter effect
+ */
 export default function Terminal({ isVisible, onClose }: TerminalProps) {
   const [command, setCommand] = useState("");
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -36,15 +29,24 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const { size, isResizing, positionOffset, resizeHandlers } = useResize({
-    initialSize: { width: TERMINAL_WIDTH_PX, height: TERMINAL_HEIGHT_PX },
-    minSize: { width: 400, height: 300 },
-    maxSize: { width: 1200, height: 800 },
+    initialSize: {
+      width: TERMINAL_CONFIG.DEFAULT_WIDTH,
+      height: TERMINAL_CONFIG.DEFAULT_HEIGHT,
+    },
+    minSize: {
+      width: TERMINAL_CONFIG.MIN_WIDTH,
+      height: TERMINAL_CONFIG.MIN_HEIGHT,
+    },
+    maxSize: {
+      width: TERMINAL_CONFIG.MAX_WIDTH,
+      height: TERMINAL_CONFIG.MAX_HEIGHT,
+    },
   });
 
   // Calculate initial centered position (only once)
   const initialCenteredPosition = {
-    x: -TERMINAL_WIDTH_PX / 2,
-    y: -TERMINAL_HEIGHT_PX / 2,
+    x: -TERMINAL_CONFIG.DEFAULT_WIDTH / 2,
+    y: -TERMINAL_CONFIG.DEFAULT_HEIGHT / 2,
   };
 
   const { position, isDragging, dragHandlers } = useDrag({
@@ -58,7 +60,7 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     navigateSuggestions,
     selectSuggestion,
     clearSuggestions,
-  } = useCommandAutocomplete(command, AVAILABLE_COMMANDS, setCommand);
+  } = useCommandAutocomplete(command, TERMINAL_CONFIG.COMMANDS, setCommand);
 
   // Initialize terminal with intro text
   useEffect(() => {
