@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { useTypewriter } from "../../hooks/useTypewriter";
-import { useCommandAutocomplete } from "../../hooks/useCommandAutocomplete";
-import { useFullscreen } from "../../hooks/useFullscreen";
-import { useResize } from "../../hooks/useResize";
-import { useDrag } from "../../hooks/useDrag";
+import { useTypewriter } from "../../../hooks/useTypewriter";
+import { useCommandAutocomplete } from "../../../hooks/useCommandAutocomplete";
+import { useFullscreen } from "../../../hooks/useFullscreen";
+import { useResize } from "../../../hooks/useResize";
+import { useDrag } from "../../../hooks/useDrag";
 import { executeCommand, getIntroText } from "./terminalCommands";
 import { TerminalHeader } from "./TerminalHeader";
 import { TerminalInput } from "./TerminalInput";
-import { ResizeHandles } from "./ResizeHandles";
+import { ResizeHandles } from "../ResizeHandles";
 
 interface TerminalProps {
   isVisible: boolean;
@@ -41,8 +41,14 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
     maxSize: { width: 1200, height: 800 },
   });
 
+  // Calculate initial centered position (only once)
+  const initialCenteredPosition = {
+    x: -TERMINAL_WIDTH_PX / 2,
+    y: -TERMINAL_HEIGHT_PX / 2,
+  };
+
   const { position, isDragging, dragHandlers } = useDrag({
-    initialPosition: { x: 0, y: 0 },
+    initialPosition: initialCenteredPosition,
     disabled: isFullscreen,
   });
 
@@ -112,7 +118,6 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
         height: `${size.height}px`,
         left: `calc(50% + ${position.x + positionOffset.x}px)`,
         top: `calc(50% + ${position.y + positionOffset.y}px)`,
-        transform: "translate(-50%, -50%)",
       };
 
   return (

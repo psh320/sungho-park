@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import { useState } from "react";
-import Terminal from "@/components/Home/Terminal";
+import Terminal from "@/components/Home/Terminal/Terminal";
 import Skills from "@/components/Home/Skills";
 import { useRouter } from "next/router";
 
@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="relative overflow-hidden">
       {/* Terminal Component */}
       <Terminal isVisible={isTerminalVisible} onClose={handleCloseTerminal} />
 
@@ -59,6 +59,6 @@ export default function Home() {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }
