@@ -16,7 +16,7 @@ interface MonitorProps {
  */
 function MonitorBezel({ children }: { children: ReactNode }) {
   // Named conditions for better readability
-  const bezelClasses = `min-h-screen pt-[${HEADER_HEIGHT_PX}px] bg-black p-8`;
+  const bezelClasses = `min-h-screen pt-[112px] bg-black p-8`;
 
   return <div className={bezelClasses}>{children}</div>;
 }
@@ -27,14 +27,10 @@ function MonitorBezel({ children }: { children: ReactNode }) {
  */
 function MonitorScreen({ children }: { children: ReactNode }) {
   // Named calculation for screen height (Relating Magic Numbers to Logic)
-  const screenHeight = `calc(100vh - ${HEADER_HEIGHT_PX}px - ${MONITOR_BORDER_SIZE})`;
-  const screenClasses = "w-full bg-primary overflow-hidden";
+  const screenClasses =
+    "w-full bg-primary overflow-hidden h-[calc(100vh-112px-2rem)]";
 
-  return (
-    <div className={screenClasses} style={{ height: screenHeight }}>
-      {children}
-    </div>
-  );
+  return <div className={screenClasses}>{children}</div>;
 }
 
 /**

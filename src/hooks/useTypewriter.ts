@@ -7,7 +7,7 @@ interface UseTypewriterReturn {
   clearText: () => void;
 }
 
-const TYPING_SPEED_MS = 20;
+const TYPING_SPEED_MS = 10;
 
 export function useTypewriter(): UseTypewriterReturn {
   const [typedText, setTypedText] = useState("");

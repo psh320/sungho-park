@@ -43,7 +43,7 @@ export function getIntroText(): string {
     "Frontend Engineer with 2+ years of experience",
     "Passionate about creating exceptional user experiences",
     "",
-    "Type 'help' to see available commands or close the terminal if you don't like CLI",
+    "Type 'help' to see available commands",
   ];
 
   return introLines.join("\n");
