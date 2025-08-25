@@ -195,12 +195,16 @@ function DesktopEnvironment({
   onOpenTerminal,
   onGoToProjects,
   isTerminalVisible,
+  isTerminalMinimized,
   onCloseTerminal,
+  onMinimizeTerminal,
 }: {
   onOpenTerminal: () => void;
   onGoToProjects: () => void;
   isTerminalVisible: boolean;
+  isTerminalMinimized: boolean;
   onCloseTerminal: () => void;
+  onMinimizeTerminal: () => void;
 }) {
   return (
     <Monitor>
@@ -209,7 +213,12 @@ function DesktopEnvironment({
         onGoToProjects={onGoToProjects}
         isTerminalActive={isTerminalVisible}
       >
-        <Terminal isVisible={isTerminalVisible} onClose={onCloseTerminal} />
+        <Terminal
+          isVisible={isTerminalVisible}
+          isMinimized={isTerminalMinimized}
+          onClose={onCloseTerminal}
+          onMinimize={onMinimizeTerminal}
+        />
       </Desktop>
     </Monitor>
   );
@@ -221,15 +230,22 @@ function DesktopEnvironment({
  */
 function useTerminalState() {
   const [isTerminalVisible, setIsTerminalVisible] = useState(true);
+  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
 
   // Colocated simple logic (Reducing Eye Movement)
   const handleCloseTerminal = () => setIsTerminalVisible(false);
-  const handleOpenTerminal = () => setIsTerminalVisible(true);
+  const handleOpenTerminal = () => {
+    setIsTerminalVisible(true);
+    setIsTerminalMinimized(false);
+  };
+  const handleMinimizeTerminal = () => setIsTerminalMinimized(true);
 
   return {
     isTerminalVisible,
+    isTerminalMinimized,
     handleCloseTerminal,
     handleOpenTerminal,
+    handleMinimizeTerminal,
   };
 }
 
@@ -251,8 +267,13 @@ function useNavigation() {
  * Orchestrates the overall page structure and state management
  */
 export default function HomePage() {
-  const { isTerminalVisible, handleCloseTerminal, handleOpenTerminal } =
-    useTerminalState();
+  const {
+    isTerminalVisible,
+    isTerminalMinimized,
+    handleCloseTerminal,
+    handleOpenTerminal,
+    handleMinimizeTerminal,
+  } = useTerminalState();
   const { handleGoToProjects } = useNavigation();
 
   // Named condition for better readability
@@ -265,7 +286,9 @@ export default function HomePage() {
         onOpenTerminal={handleOpenTerminal}
         onGoToProjects={handleGoToProjects}
         isTerminalVisible={isTerminalVisible}
+        isTerminalMinimized={isTerminalMinimized}
         onCloseTerminal={handleCloseTerminal}
+        onMinimizeTerminal={handleMinimizeTerminal}
       />
       {/* Future: Hero section for when terminal is closed */}
       {/* {shouldShowHeroSection && (

@@ -3,6 +3,7 @@ import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
 interface TerminalHeaderProps {
   isFullscreen: boolean;
   onClose: () => void;
+  onMinimize: () => void;
   onToggleFullscreen: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -12,6 +13,7 @@ const BUTTON_SIZE_CLASS = "w-3.5 h-3.5"; // 12px equivalent
 export function TerminalHeader({
   isFullscreen,
   onClose,
+  onMinimize,
   onToggleFullscreen,
   onDragStart,
 }: TerminalHeaderProps) {
@@ -37,15 +39,18 @@ export function TerminalHeader({
               className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity"
             />
           </button>
-          <div
+          <button
+            onClick={onMinimize}
+            onMouseDown={(e) => e.stopPropagation()}
             className={`${BUTTON_SIZE_CLASS} bg-yellow-500 rounded-full hover:bg-yellow-600 transition-colors flex items-center justify-center`}
+            title="Minimize Terminal"
           >
             <Minus
               size={8}
               strokeWidth={4}
               className="text-yellow-900 opacity-0 group-hover:opacity-100 transition-opacity"
             />
-          </div>
+          </button>
           <button
             onClick={onToggleFullscreen}
             onMouseDown={(e) => e.stopPropagation()}

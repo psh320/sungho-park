@@ -13,15 +13,24 @@ import { TERMINAL_CONFIG } from "./constants";
 interface TerminalProps {
   /** Whether the terminal is visible */
   isVisible: boolean;
+  /** Whether the terminal is minimized */
+  isMinimized: boolean;
   /** Callback when terminal is closed */
   onClose: () => void;
+  /** Callback when terminal is minimized */
+  onMinimize: () => void;
 }
 
 /**
  * Terminal component with macOS-style window controls
  * Features: drag & drop, resize, fullscreen, typewriter effect
  */
-export default function Terminal({ isVisible, onClose }: TerminalProps) {
+export default function Terminal({
+  isVisible,
+  isMinimized,
+  onClose,
+  onMinimize,
+}: TerminalProps) {
   const [command, setCommand] = useState("");
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -109,27 +118,33 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
   const TERMINAL_BORDER_RADIUS = "rounded-lg";
   const TERMINAL_SHADOW = "shadow-2xl";
 
-  // Determine terminal styling based on fullscreen state (Separating Code Paths)
+  // Determine terminal styling based on fullscreen and minimized state (Separating Code Paths)
   const terminalConfig = (() => {
+    const baseStyle = isMinimized
+      ? { opacity: 0, pointerEvents: "none" as const }
+      : { opacity: 1, pointerEvents: "auto" as const };
+
     if (isFullscreen) {
       return {
         containerClasses: "flex items-start justify-center h-full px-4",
-        terminalClasses: `relative bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col`,
+        terminalClasses: `relative bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col transition-opacity duration-300`,
         terminalStyle: {
           width: "100%",
           height: `calc(100% - ${FULLSCREEN_PADDING})`,
+          ...baseStyle,
         },
       };
     }
 
     return {
       containerClasses: "h-full",
-      terminalClasses: `absolute bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col`,
+      terminalClasses: `absolute bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col transition-opacity duration-300`,
       terminalStyle: {
         width: `${size.width}px`,
         height: `${size.height}px`,
         left: `calc(50% + ${position.x + positionOffset.x}px)`,
         top: `calc(50% + ${position.y + positionOffset.y}px)`,
+        ...baseStyle,
       },
     };
   })();
@@ -148,6 +163,7 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
         <TerminalHeader
           isFullscreen={isFullscreen}
           onClose={onClose}
+          onMinimize={onMinimize}
           onToggleFullscreen={toggleFullscreen}
           onDragStart={dragHandlers.onMouseDown}
         />
