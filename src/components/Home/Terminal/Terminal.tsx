@@ -106,15 +106,15 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
 
   // Determine terminal styling based on fullscreen state
   const containerClasses = isFullscreen
-    ? "flex items-start justify-center min-h-screen pt-24 px-4"
-    : "min-h-screen pt-24";
+    ? "flex items-start justify-center h-full px-4"
+    : "h-full";
 
   const terminalClasses = isFullscreen
     ? "relative bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col"
     : "absolute bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col";
 
   const terminalStyle = isFullscreen
-    ? { width: "100%", height: "calc(100vh - 8rem)" }
+    ? { width: "100%", height: "calc(100% - 2rem)" }
     : {
         width: `${size.width}px`,
         height: `${size.height}px`,

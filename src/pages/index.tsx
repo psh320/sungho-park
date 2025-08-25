@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Terminal } from "@/components/Home/Terminal";
 import Skills from "@/components/Home/Skills";
 import { useRouter } from "next/router";
+import Monitor from "@/components/Common/Monitor";
+import Desktop from "@/components/Common/Desktop";
 
 // Separate component for hero section (Abstracting Implementation Details)
 function HeroSection({
@@ -97,16 +99,24 @@ export default function HomePage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="relative overflow-hidden">
-        <Terminal isVisible={isTerminalVisible} onClose={handleCloseTerminal} />
-
-        {shouldShowHeroSection && (
-          <HeroSection
-            onOpenTerminal={handleOpenTerminal}
-            onGoToProjects={handleGoToProjects}
+      <Monitor>
+        <Desktop
+          onOpenTerminal={handleOpenTerminal}
+          onGoToProjects={handleGoToProjects}
+          isTerminalActive={isTerminalVisible}
+        >
+          <Terminal
+            isVisible={isTerminalVisible}
+            onClose={handleCloseTerminal}
           />
-        )}
-      </div>
+        </Desktop>
+      </Monitor>
+      {/* {shouldShowHeroSection && (
+        <HeroSection
+          onOpenTerminal={handleOpenTerminal}
+          onGoToProjects={handleGoToProjects}
+        />
+      )} */}
     </>
   );
 }

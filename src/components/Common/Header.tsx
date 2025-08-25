@@ -18,7 +18,7 @@ export default function Header() {
     setHeaderToggle("hidden");
   }, [route]);
   return (
-    <header className="header text-gray-600 body-font bg-primary border-b border-slate-200 dark:border-slate-700">
+    <header className="header text-gray-600 body-font bg-primary border-b border-slate-200 dark:border-slate-700 h-[80px]">
       <div
         className={`container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center justify-between header-animation ${
           headerToggle === "flex" && "header-opened"
