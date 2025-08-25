@@ -104,32 +104,46 @@ export default function Terminal({ isVisible, onClose }: TerminalProps) {
 
   if (!isVisible) return null;
 
-  // Determine terminal styling based on fullscreen state
-  const containerClasses = isFullscreen
-    ? "flex items-start justify-center h-full px-4"
-    : "h-full";
+  // Named constants for styling (Naming Magic Numbers)
+  const FULLSCREEN_PADDING = "2rem";
+  const TERMINAL_BORDER_RADIUS = "rounded-lg";
+  const TERMINAL_SHADOW = "shadow-2xl";
 
-  const terminalClasses = isFullscreen
-    ? "relative bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col"
-    : "absolute bg-gray-100 dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col";
+  // Determine terminal styling based on fullscreen state (Separating Code Paths)
+  const terminalConfig = (() => {
+    if (isFullscreen) {
+      return {
+        containerClasses: "flex items-start justify-center h-full px-4",
+        terminalClasses: `relative bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col`,
+        terminalStyle: {
+          width: "100%",
+          height: `calc(100% - ${FULLSCREEN_PADDING})`,
+        },
+      };
+    }
 
-  const terminalStyle = isFullscreen
-    ? { width: "100%", height: "calc(100% - 2rem)" }
-    : {
+    return {
+      containerClasses: "h-full",
+      terminalClasses: `absolute bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 flex flex-col`,
+      terminalStyle: {
         width: `${size.width}px`,
         height: `${size.height}px`,
         left: `calc(50% + ${position.x + positionOffset.x}px)`,
         top: `calc(50% + ${position.y + positionOffset.y}px)`,
-      };
+      },
+    };
+  })();
+
+  // Named condition for better readability
+  const isInteracting = isResizing || isDragging;
+  const interactionClasses = isInteracting ? "select-none" : "";
 
   return (
-    <div className={containerClasses}>
+    <div className={terminalConfig.containerClasses}>
       <div
         ref={terminalRef}
-        className={`${terminalClasses} ${
-          isResizing || isDragging ? "select-none" : ""
-        }`}
-        style={terminalStyle}
+        className={`${terminalConfig.terminalClasses} ${interactionClasses}`}
+        style={terminalConfig.terminalStyle}
       >
         <TerminalHeader
           isFullscreen={isFullscreen}
