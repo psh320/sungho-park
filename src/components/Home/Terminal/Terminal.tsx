@@ -126,7 +126,7 @@ export default function Terminal({
 
     if (isFullscreen) {
       return {
-        containerClasses: "flex items-start justify-center h-full px-4",
+        containerClasses: "flex items-start justify-center h-full",
         terminalClasses: `relative bg-gray-100 dark:bg-gray-900 ${TERMINAL_BORDER_RADIUS} ${TERMINAL_SHADOW} border border-gray-300 dark:border-gray-700 vt323-regular text-gray-800 dark:text-green-500 w-full flex flex-col transition-opacity duration-300`,
         terminalStyle: {
           width: "100%",

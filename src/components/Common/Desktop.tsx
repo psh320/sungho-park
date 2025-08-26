@@ -63,7 +63,8 @@ export default function Desktop({
   isTerminalActive = false,
 }: DesktopProps) {
   // Named constants for styling (Relating Magic Numbers to Logic)
-  const desktopContainerClasses = "relative w-full h-full overflow-hidden";
+  const desktopContainerClasses =
+    "relative w-full h-full overflow-hidden bg-desktop";
 
   return (
     <div className={desktopContainerClasses}>
