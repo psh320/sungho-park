@@ -1,28 +1,45 @@
 import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
 
-interface TerminalHeaderProps {
+interface WindowHeaderProps {
+  /** Window title to display */
+  title: string;
+  /** Whether the window is in fullscreen mode */
   isFullscreen: boolean;
+  /** Callback when close button is clicked */
   onClose: () => void;
+  /** Callback when minimize button is clicked */
   onMinimize: () => void;
+  /** Callback when fullscreen toggle button is clicked */
   onToggleFullscreen: () => void;
+  /** Callback for drag start (when draggable) */
   onDragStart?: (e: React.MouseEvent) => void;
+  /** Additional CSS classes for the header */
+  className?: string;
 }
 
 const BUTTON_SIZE_CLASS = "w-3.5 h-3.5"; // 12px equivalent
 
-export function TerminalHeader({
+/**
+ * Generic window header component with macOS-style window controls
+ * Features: close, minimize, fullscreen buttons, draggable area, customizable title
+ */
+export function WindowHeader({
+  title,
   isFullscreen,
   onClose,
   onMinimize,
   onToggleFullscreen,
   onDragStart,
-}: TerminalHeaderProps) {
+  className = "",
+}: WindowHeaderProps) {
   const headerClasses =
     "flex items-center justify-between bg-gray-200 dark:bg-gray-800 px-4 py-2 border-b border-gray-300 dark:border-gray-600 rounded-t-lg";
 
   return (
     <div
-      className={`${headerClasses} ${!isFullscreen ? "cursor-move" : ""}`}
+      className={`${headerClasses} ${
+        !isFullscreen && onDragStart ? "cursor-move" : ""
+      } ${className}`}
       onMouseDown={!isFullscreen ? onDragStart : undefined}
     >
       <div className="flex items-center space-x-2">
@@ -31,7 +48,7 @@ export function TerminalHeader({
             onClick={onClose}
             onMouseDown={(e) => e.stopPropagation()}
             className={`${BUTTON_SIZE_CLASS} bg-red-500 rounded-full hover:bg-red-600 transition-colors flex items-center justify-center`}
-            title="Close Terminal"
+            title="Close Window"
           >
             <X
               size={8}
@@ -43,7 +60,7 @@ export function TerminalHeader({
             onClick={onMinimize}
             onMouseDown={(e) => e.stopPropagation()}
             className={`${BUTTON_SIZE_CLASS} bg-yellow-500 rounded-full hover:bg-yellow-600 transition-colors flex items-center justify-center`}
-            title="Minimize Terminal"
+            title="Minimize Window"
           >
             <Minus
               size={8}
@@ -57,8 +74,8 @@ export function TerminalHeader({
             className={`${BUTTON_SIZE_CLASS} bg-green-500 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center`}
             title={
               isFullscreen
-                ? "Exit Expanded Mode (Esc)"
-                : "Expand Terminal (F11)"
+                ? "Exit Fullscreen Mode (Esc)"
+                : "Enter Fullscreen Mode (F11)"
             }
           >
             {isFullscreen ? (
@@ -77,7 +94,7 @@ export function TerminalHeader({
           </button>
         </div>
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-4">
-          Sungho Park Terminal
+          {title}
         </span>
       </div>
 

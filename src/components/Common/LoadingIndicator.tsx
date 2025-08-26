@@ -1,6 +1,6 @@
 import React from "react";
 
-export const LoadingIndicator = () => {
+export default function LoadingIndicator() {
   return (
     <div role="status" className="w-full h-32 flex justify-center items-center">
       <svg
@@ -22,4 +22,4 @@ export const LoadingIndicator = () => {
       <span className="sr-only">Loading...</span>
     </div>
   );
-};
+}

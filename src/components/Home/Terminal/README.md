@@ -1,6 +1,6 @@
 # Terminal Component
 
-A fully-featured terminal emulator with macOS-style window controls, built with React and TypeScript.
+A fully-featured terminal emulator with macOS-style window controls, built with React and TypeScript. Now uses the generic Window component for consistent windowing behavior across the application.
 
 ## Features
 
@@ -12,16 +12,13 @@ A fully-featured terminal emulator with macOS-style window controls, built with 
 - 📝 **Typewriter Effect**: Smooth text animation for command responses
 - 🔍 **Command Autocomplete**: Tab completion and arrow key navigation
 - 🎨 **Dark Mode**: Supports light/dark themes
+- 🔧 **Extensible**: Uses generic Window component for consistent window behavior
 
 ## Components
 
 ### `Terminal.tsx`
 
-Main terminal component that orchestrates all functionality.
-
-### `TerminalHeader.tsx`
-
-Header with macOS-style window controls and drag functionality.
+Main terminal component that focuses on terminal-specific functionality. Uses the generic `Window` component from `@/components/Common` for windowing behavior.
 
 ### `TerminalInput.tsx`
 
@@ -62,13 +59,20 @@ function App() {
 
 ## Architecture
 
-The terminal uses several custom hooks for clean separation of concerns:
+The terminal has been refactored to use the generic `Window` component from `@/components/Common`, providing consistent windowing behavior across the application. The terminal now focuses purely on terminal-specific functionality:
+
+**Terminal-specific:**
 
 - `useTypewriter` - Handles text animation
+- `useCommandAutocomplete` - Command completion and suggestions
+
+**Window behavior (handled by Window component):**
+
 - `useFullscreen` - Manages fullscreen state and keyboard shortcuts
 - `useResize` - Handles window resizing with proper edge behavior
 - `useDrag` - Manages drag and drop functionality
-- `useCommandAutocomplete` - Command completion and suggestions
+
+This separation allows the window behavior to be reused by other components that need windowing functionality.
 
 ## Configuration
 
