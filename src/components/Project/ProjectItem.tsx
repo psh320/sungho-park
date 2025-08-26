@@ -28,6 +28,8 @@ const PROJECT_BACKGROUND_COLORS = [
 
 type Props = {
   project: ProjectData;
+  /** Optional callback when project is selected for detail view */
+  onSelect?: () => void;
 };
 
 // Separate component for project links (Abstracting Implementation Details)
@@ -44,7 +46,27 @@ function ProjectLinks({ project }: { project: ProjectData }) {
 }
 
 // Separate component for project actions (Cohesion)
-function ProjectActions({ projectId }: { projectId: string }) {
+function ProjectActions({
+  projectId,
+  onSelect,
+}: {
+  projectId: string;
+  onSelect?: () => void;
+}) {
+  // Use callback for windowed view if provided, otherwise external link
+  if (onSelect) {
+    return (
+      <div className="flex flex-row my-2">
+        <button
+          onClick={onSelect}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+        >
+          View Details
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-row my-2">
       <Link
@@ -95,7 +117,7 @@ function ProjectPlaceholder({
   );
 }
 
-export default function ProjectItem({ project }: Props) {
+export default function ProjectItem({ project, onSelect }: Props) {
   // Named condition for better readability (Naming Complex Conditions)
   const hasValidCoverImage = Boolean(project.coverImage);
 
@@ -132,7 +154,7 @@ export default function ProjectItem({ project }: Props) {
           {project.description}
         </p>
 
-        <ProjectActions projectId={project.id} />
+        <ProjectActions projectId={project.id} onSelect={onSelect} />
         <ProjectDivider />
 
         <section className="mt-auto">

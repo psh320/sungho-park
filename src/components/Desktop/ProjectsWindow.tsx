@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ProjectData } from "@/data/projects";
 import ProjectItem from "../Project/ProjectItem";
 import LoadingIndicator from "../UI/LoadingIndicator";
 import Window from "../Window/Window";
-import { Folder, Search, X } from "lucide-react";
+import { Breadcrumb, createBreadcrumbs } from "../UI/Breadcrumb";
+import { ProjectModalHeader } from "../Project/ProjectModalHeader";
+import { Folder, Search, X, ArrowLeft } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Named constants for window configuration (Naming Magic Numbers)
 const PROJECTS_WINDOW_CONFIG = {
@@ -30,6 +34,11 @@ const PROJECTS_STYLING = {
   GRID_CONTAINER: "grid grid-cols-1 lg:grid-cols-2 gap-6 p-6",
   EMPTY_STATE:
     "flex flex-col items-center justify-center h-full text-center p-8",
+  BACK_BUTTON:
+    "inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer",
+  PROJECT_DETAIL_CONTAINER: "p-6 max-w-4xl mx-auto",
+  PROJECT_HEADER_SPACING: "mb-8",
+  MARKDOWN_SPACING: "mt-8",
 } as const;
 
 interface ProjectsWindowProps {
@@ -110,6 +119,26 @@ function useProjectSearch(projects: ProjectData[]) {
 }
 
 /**
+ * Custom hook for project navigation - Single Responsibility
+ * Handles selected project state and navigation
+ */
+function useProjectNavigation() {
+  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
+    null
+  );
+
+  const selectProject = useCallback((project: ProjectData) => {
+    setSelectedProject(project);
+  }, []);
+
+  const goBackToProjects = useCallback(() => {
+    setSelectedProject(null);
+  }, []);
+
+  return { selectedProject, selectProject, goBackToProjects };
+}
+
+/**
  * Projects window header with search - Cohesion
  * Groups header functionality together
  */
@@ -157,10 +186,46 @@ function ProjectsHeader({
 }
 
 /**
+ * Project detail header with breadcrumbs - Separating Code Paths
+ * Single Responsibility - Handles project detail navigation
+ */
+function ProjectDetailHeader({
+  project,
+  onBack,
+}: {
+  project: ProjectData;
+  onBack: () => void;
+}) {
+  // Create breadcrumbs for the windowed context (no external links)
+  const breadcrumbItems = [
+    { label: "Projects" },
+    { label: project.title, isActive: true },
+  ];
+
+  return (
+    <div className={PROJECTS_STYLING.HEADER}>
+      <div className="flex items-center space-x-4 flex-1">
+        <div className={PROJECTS_STYLING.BACK_BUTTON} onClick={onBack}>
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </div>
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+    </div>
+  );
+}
+
+/**
  * Projects grid component - Separating Code Paths for content display
  * Single Responsibility - Handles only projects grid rendering
  */
-function ProjectsGrid({ projects }: { projects: ProjectData[] }) {
+function ProjectsGrid({
+  projects,
+  onProjectSelect,
+}: {
+  projects: ProjectData[];
+  onProjectSelect: (project: ProjectData) => void;
+}) {
   if (projects.length === 0) {
     return (
       <div className={PROJECTS_STYLING.EMPTY_STATE}>
@@ -178,8 +243,110 @@ function ProjectsGrid({ projects }: { projects: ProjectData[] }) {
   return (
     <div className={PROJECTS_STYLING.GRID_CONTAINER}>
       {projects.map((project) => (
-        <ProjectItem key={project.id} project={project} />
+        <ProjectItem
+          key={project.id}
+          project={project}
+          onSelect={() => onProjectSelect(project)}
+        />
       ))}
+    </div>
+  );
+}
+
+// Colocated markdown components configuration (Reducing Eye Movement)
+const MARKDOWN_COMPONENTS = {
+  h1: ({ children }: { children: React.ReactNode }) => (
+    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4">
+      {children}
+    </h1>
+  ),
+  h2: ({ children }: { children: React.ReactNode }) => (
+    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }: { children: React.ReactNode }) => (
+    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mt-4 mb-2">
+      {children}
+    </h3>
+  ),
+  p: ({ children }: { children: React.ReactNode }) => (
+    <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+      {children}
+    </p>
+  ),
+  ul: ({ children }: { children: React.ReactNode }) => (
+    <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 mb-4 space-y-1">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children: React.ReactNode }) => (
+    <ol className="list-decimal list-inside text-gray-600 dark:text-gray-400 mb-4 space-y-1">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children: React.ReactNode }) => (
+    <li className="text-gray-600 dark:text-gray-400">{children}</li>
+  ),
+  code: ({ children }: { children: React.ReactNode }) => (
+    <code className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm">
+      {children}
+    </code>
+  ),
+  pre: ({ children }: { children: React.ReactNode }) => (
+    <pre className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4 rounded-lg overflow-x-auto mb-4">
+      {children}
+    </pre>
+  ),
+  blockquote: ({ children }: { children: React.ReactNode }) => (
+    <blockquote className="border-l-4 border-indigo-500 pl-4 italic text-gray-600 dark:text-gray-400 mb-4">
+      {children}
+    </blockquote>
+  ),
+  a: ({ children, href }: { children: React.ReactNode; href?: string }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline transition-colors"
+    >
+      {children}
+    </a>
+  ),
+  img: ({ src, alt }: { src?: string; alt?: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className="max-w-full h-auto rounded-lg shadow-md mb-4"
+      loading="lazy"
+    />
+  ),
+};
+
+/**
+ * Project detail content for window context - Abstracting Implementation Details
+ * Separates project detail rendering from page-level concerns
+ */
+function ProjectDetailContent({ project }: { project: ProjectData }) {
+  return (
+    <div className={PROJECTS_STYLING.PROJECT_DETAIL_CONTAINER}>
+      {/* Project Header */}
+      <div className={PROJECTS_STYLING.PROJECT_HEADER_SPACING}>
+        <ProjectModalHeader project={project} />
+      </div>
+
+      {/* Project README Content */}
+      {project.readme && (
+        <div className={PROJECTS_STYLING.MARKDOWN_SPACING}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={MARKDOWN_COMPONENTS}
+          >
+            {project.readme}
+          </ReactMarkdown>
+        </div>
+      )}
     </div>
   );
 }
@@ -196,6 +363,9 @@ function ProjectsContent({
   onSearchChange,
   onClearSearch,
   filteredProjects,
+  selectedProject,
+  onProjectSelect,
+  onBackToProjects,
 }: {
   projects: ProjectData[];
   isLoading: boolean;
@@ -204,6 +374,9 @@ function ProjectsContent({
   onSearchChange: (query: string) => void;
   onClearSearch: () => void;
   filteredProjects: ProjectData[];
+  selectedProject: ProjectData | null;
+  onProjectSelect: (project: ProjectData) => void;
+  onBackToProjects: () => void;
 }) {
   // Handle loading state
   if (isLoading) {
@@ -227,6 +400,22 @@ function ProjectsContent({
     );
   }
 
+  // Show project detail view (Separating Code Paths)
+  if (selectedProject) {
+    return (
+      <div className={PROJECTS_STYLING.CONTAINER}>
+        <ProjectDetailHeader
+          project={selectedProject}
+          onBack={onBackToProjects}
+        />
+        <div className={PROJECTS_STYLING.CONTENT}>
+          <ProjectDetailContent project={selectedProject} />
+        </div>
+      </div>
+    );
+  }
+
+  // Show projects list view (Default state)
   return (
     <div className={PROJECTS_STYLING.CONTAINER}>
       <ProjectsHeader
@@ -238,7 +427,10 @@ function ProjectsContent({
       />
 
       <div className={PROJECTS_STYLING.CONTENT}>
-        <ProjectsGrid projects={filteredProjects} />
+        <ProjectsGrid
+          projects={filteredProjects}
+          onProjectSelect={onProjectSelect}
+        />
       </div>
     </div>
   );
@@ -246,7 +438,7 @@ function ProjectsContent({
 
 /**
  * Projects Window application component
- * Features: project browsing, search, responsive grid, windowed interface
+ * Features: project browsing, search, responsive grid, windowed interface, project detail view
  * Cohesion - Groups projects window functionality together
  */
 export function ProjectsWindow({
@@ -258,12 +450,19 @@ export function ProjectsWindow({
   const { projects, isLoading, error } = useProjectsData();
   const { searchQuery, setSearchQuery, filteredProjects, clearSearch } =
     useProjectSearch(projects);
+  const { selectedProject, selectProject, goBackToProjects } =
+    useProjectNavigation();
+
+  // Dynamic window title based on current view (Predictability)
+  const windowTitle = selectedProject
+    ? `Projects - ${selectedProject.title}`
+    : "Projects";
 
   return (
     <Window
       isVisible={isVisible}
       isMinimized={isMinimized}
-      title="Projects"
+      title={windowTitle}
       onClose={onClose}
       onMinimize={onMinimize}
       initialSize={PROJECTS_WINDOW_CONFIG.INITIAL_SIZE}
@@ -280,6 +479,9 @@ export function ProjectsWindow({
         onSearchChange={setSearchQuery}
         onClearSearch={clearSearch}
         filteredProjects={filteredProjects}
+        selectedProject={selectedProject}
+        onProjectSelect={selectProject}
+        onBackToProjects={goBackToProjects}
       />
     </Window>
   );
