@@ -47,7 +47,7 @@ export function WindowHeader({
     "rounded-t-lg",
   ].join(" ");
 
-  // Named condition for better readability
+  // Named condition for better readability - use simple cursor-move for draggable headers
   const isDraggableAndNotFullscreen = !isFullscreen && onDragStart;
   const cursorStyle = isDraggableAndNotFullscreen ? "cursor-move" : "";
 

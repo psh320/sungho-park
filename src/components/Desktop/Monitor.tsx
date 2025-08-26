@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef, useEffect } from "react";
+import { useDesktopCursor } from "@/hooks/useDesktopCursor";
 
 // Named constants for better readability (Naming Magic Numbers)
 const HEADER_HEIGHT_PX = 112; // Height of the header in pixels
@@ -23,14 +24,36 @@ function MonitorBezel({ children }: { children: ReactNode }) {
 
 /**
  * Monitor screen component - Abstracting Implementation Details
- * Represents the actual screen area inside the monitor bezel
+ * Represents the actual screen area inside the monitor bezel with custom cursor
  */
 function MonitorScreen({ children }: { children: ReactNode }) {
+  const screenRef = useRef<HTMLDivElement>(null);
+  const { applyCursor, removeCursor } = useDesktopCursor();
+
+  // Apply desktop cursor when component mounts (Simplified Cursor Management)
+  useEffect(() => {
+    const screenElement = screenRef.current;
+    if (screenElement) {
+      applyCursor(screenElement);
+    }
+
+    // Cleanup cursor on unmount
+    return () => {
+      if (screenElement) {
+        removeCursor(screenElement);
+      }
+    };
+  }, [applyCursor, removeCursor]);
+
   // Named calculation for screen height (Relating Magic Numbers to Logic)
   const screenClasses =
     "w-full bg-primary overflow-hidden h-[calc(100vh-112px-2rem)]";
 
-  return <div className={screenClasses}>{children}</div>;
+  return (
+    <div ref={screenRef} className={screenClasses}>
+      {children}
+    </div>
+  );
 }
 
 /**
