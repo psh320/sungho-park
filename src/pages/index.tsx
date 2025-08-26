@@ -4,14 +4,14 @@ import { useRouter } from "next/router";
 import { Terminal } from "@/components/Home/Terminal";
 import Skills from "@/components/Home/Skills";
 import Monitor from "@/components/Desktop/Monitor";
-import Desktop from "@/components/Desktop/Desktop";
+import { Desktop, ProjectsWindow } from "@/components/Desktop";
 
 // Named constants for better readability (Naming Magic Numbers)
 const PAGE_TITLE = "Sungho Park - Frontend Engineer";
 const PAGE_DESCRIPTION = "Frontend Engineer with 2+ years of experience";
 const HERO_SECTION_PADDING_TOP = "pt-24";
 const BUTTON_TRANSITION_DURATION = "duration-200";
-const PROJECTS_ROUTE = "/project";
+// Removed PROJECTS_ROUTE since we now use desktop windows
 
 /**
  * Hero content component - Abstracting Implementation Details
@@ -193,31 +193,46 @@ function PageHead() {
  */
 function DesktopEnvironment({
   onOpenTerminal,
-  onGoToProjects,
+  onOpenProjects,
   isTerminalVisible,
   isTerminalMinimized,
   onCloseTerminal,
   onMinimizeTerminal,
+  isProjectsVisible,
+  isProjectsMinimized,
+  onCloseProjects,
+  onMinimizeProjects,
 }: {
   onOpenTerminal: () => void;
-  onGoToProjects: () => void;
+  onOpenProjects: () => void;
   isTerminalVisible: boolean;
   isTerminalMinimized: boolean;
   onCloseTerminal: () => void;
   onMinimizeTerminal: () => void;
+  isProjectsVisible: boolean;
+  isProjectsMinimized: boolean;
+  onCloseProjects: () => void;
+  onMinimizeProjects: () => void;
 }) {
   return (
     <Monitor>
       <Desktop
         onOpenTerminal={onOpenTerminal}
-        onGoToProjects={onGoToProjects}
+        onOpenProjects={onOpenProjects}
         isTerminalActive={isTerminalVisible}
+        isProjectsActive={isProjectsVisible}
       >
         <Terminal
           isVisible={isTerminalVisible}
           isMinimized={isTerminalMinimized}
           onClose={onCloseTerminal}
           onMinimize={onMinimizeTerminal}
+        />
+        <ProjectsWindow
+          isVisible={isProjectsVisible}
+          isMinimized={isProjectsMinimized}
+          onClose={onCloseProjects}
+          onMinimize={onMinimizeProjects}
         />
       </Desktop>
     </Monitor>
@@ -250,15 +265,32 @@ function useTerminalState() {
 }
 
 /**
- * Custom hook for navigation logic - Scoping State Management
+ * Custom hook for projects window state management - Scoping State Management
  */
-function useNavigation() {
-  const router = useRouter();
+function useProjectsWindowState() {
+  const [isProjectsVisible, setIsProjectsVisible] = useState(false);
+  const [isProjectsMinimized, setIsProjectsMinimized] = useState(false);
 
-  const handleGoToProjects = () => router.push(PROJECTS_ROUTE);
+  const handleOpenProjects = () => {
+    setIsProjectsVisible(true);
+    setIsProjectsMinimized(false);
+  };
+
+  const handleCloseProjects = () => {
+    setIsProjectsVisible(false);
+    setIsProjectsMinimized(false);
+  };
+
+  const handleMinimizeProjects = () => {
+    setIsProjectsMinimized(true);
+  };
 
   return {
-    handleGoToProjects,
+    isProjectsVisible,
+    isProjectsMinimized,
+    handleOpenProjects,
+    handleCloseProjects,
+    handleMinimizeProjects,
   };
 }
 
@@ -274,27 +306,38 @@ export default function HomePage() {
     handleOpenTerminal,
     handleMinimizeTerminal,
   } = useTerminalState();
-  const { handleGoToProjects } = useNavigation();
+
+  const {
+    isProjectsVisible,
+    isProjectsMinimized,
+    handleOpenProjects,
+    handleCloseProjects,
+    handleMinimizeProjects,
+  } = useProjectsWindowState();
 
   // Named condition for better readability
-  const shouldShowHeroSection = !isTerminalVisible;
+  const shouldShowHeroSection = !isTerminalVisible && !isProjectsVisible;
 
   return (
     <>
       <PageHead />
       <DesktopEnvironment
         onOpenTerminal={handleOpenTerminal}
-        onGoToProjects={handleGoToProjects}
+        onOpenProjects={handleOpenProjects}
         isTerminalVisible={isTerminalVisible}
         isTerminalMinimized={isTerminalMinimized}
         onCloseTerminal={handleCloseTerminal}
         onMinimizeTerminal={handleMinimizeTerminal}
+        isProjectsVisible={isProjectsVisible}
+        isProjectsMinimized={isProjectsMinimized}
+        onCloseProjects={handleCloseProjects}
+        onMinimizeProjects={handleMinimizeProjects}
       />
       {/* Future: Hero section for when terminal is closed */}
       {/* {shouldShowHeroSection && (
         <HeroSection
           onOpenTerminal={handleOpenTerminal}
-          onGoToProjects={handleGoToProjects}
+          onOpenProjects={handleOpenProjects}
         />
       )} */}
     </>

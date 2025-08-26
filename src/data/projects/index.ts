@@ -11,7 +11,7 @@ export interface ProjectData {
   site: string | null;
   screenshots?: string[]; // Array of screenshot URLs/paths
   coverImage?: string | null;
-  readmeContent?: string;
+  readme?: string;
 }
 
 export const projectsData: ProjectData[] = [

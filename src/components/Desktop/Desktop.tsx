@@ -10,10 +10,12 @@ interface DesktopProps {
   children?: ReactNode;
   /** Handler for opening terminal */
   onOpenTerminal?: () => void;
-  /** Handler for navigating to projects */
-  onGoToProjects?: () => void;
+  /** Handler for opening projects window */
+  onOpenProjects?: () => void;
   /** Whether terminal is currently visible/active */
   isTerminalActive?: boolean;
+  /** Whether projects window is currently visible/active */
+  isProjectsActive?: boolean;
 }
 
 /**
@@ -30,23 +32,26 @@ function DesktopContent({ children }: { children?: ReactNode }) {
  */
 function DesktopDock({
   onOpenTerminal,
-  onGoToProjects,
+  onOpenProjects,
   isTerminalActive,
+  isProjectsActive,
 }: {
   onOpenTerminal?: () => void;
-  onGoToProjects?: () => void;
+  onOpenProjects?: () => void;
   isTerminalActive?: boolean;
+  isProjectsActive?: boolean;
 }) {
   // Named condition for better readability
-  const shouldShowDock = onOpenTerminal && onGoToProjects;
+  const shouldShowDock = onOpenTerminal && onOpenProjects;
 
   if (!shouldShowDock) return null;
 
   return (
     <Dock
       onOpenTerminal={onOpenTerminal}
-      onGoToProjects={onGoToProjects}
+      onOpenProjects={onOpenProjects}
       isTerminalActive={isTerminalActive ?? false}
+      isProjectsActive={isProjectsActive ?? false}
     />
   );
 }
@@ -59,8 +64,9 @@ function DesktopDock({
 export default function Desktop({
   children,
   onOpenTerminal,
-  onGoToProjects,
+  onOpenProjects,
   isTerminalActive = false,
+  isProjectsActive = false,
 }: DesktopProps) {
   // Named constants for styling (Relating Magic Numbers to Logic)
   const desktopContainerClasses =
@@ -71,8 +77,9 @@ export default function Desktop({
       <DesktopContent>{children}</DesktopContent>
       <DesktopDock
         onOpenTerminal={onOpenTerminal}
-        onGoToProjects={onGoToProjects}
+        onOpenProjects={onOpenProjects}
         isTerminalActive={isTerminalActive}
+        isProjectsActive={isProjectsActive}
       />
     </div>
   );

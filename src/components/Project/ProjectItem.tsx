@@ -1,5 +1,6 @@
 import { ProjectData } from "@/data/projects";
 import Image from "next/image";
+import Link from "next/link";
 import ProjectAndroidLink from "./ProjectAndroidLink";
 import ProjectDemoLink from "./ProjectDemoLink";
 import ProjectDuration from "./ProjectDuration";
@@ -27,7 +28,6 @@ const PROJECT_BACKGROUND_COLORS = [
 
 type Props = {
   project: ProjectData;
-  onViewDetails: () => void; // More descriptive name
 };
 
 // Separate component for project links (Abstracting Implementation Details)
@@ -44,15 +44,15 @@ function ProjectLinks({ project }: { project: ProjectData }) {
 }
 
 // Separate component for project actions (Cohesion)
-function ProjectActions({ onViewDetails }: { onViewDetails: () => void }) {
+function ProjectActions({ projectId }: { projectId: string }) {
   return (
     <div className="flex flex-row my-2">
-      <button
-        onClick={onViewDetails}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+      <Link
+        href={`/project/${projectId}`}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium inline-block text-center"
       >
         View Details
-      </button>
+      </Link>
     </div>
   );
 }
@@ -95,7 +95,7 @@ function ProjectPlaceholder({
   );
 }
 
-export default function ProjectItem({ project, onViewDetails }: Props) {
+export default function ProjectItem({ project }: Props) {
   // Named condition for better readability (Naming Complex Conditions)
   const hasValidCoverImage = Boolean(project.coverImage);
 
@@ -132,7 +132,7 @@ export default function ProjectItem({ project, onViewDetails }: Props) {
           {project.description}
         </p>
 
-        <ProjectActions onViewDetails={onViewDetails} />
+        <ProjectActions projectId={project.id} />
         <ProjectDivider />
 
         <section className="mt-auto">

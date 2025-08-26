@@ -64,7 +64,7 @@ footer {
 }
 
 .project-card {
-  @apply dark:bg-slate-700 bg-gray-50 rounded-xl duration-300 border border-slate-200 dark:border-slate-500 hover:scale-105 hover:shadow-md dark:hover:shadow-gray-500;
+  @apply dark:bg-slate-700 bg-gray-50 rounded-xl duration-300 border border-slate-200 dark:border-slate-500 hover:shadow-md dark:hover:shadow-gray-500;
 }
 
 .modal {

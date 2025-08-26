@@ -81,10 +81,12 @@ function DockTooltip({ label }: { label: string }) {
 interface DockProps {
   /** Handler for opening terminal */
   onOpenTerminal: () => void;
-  /** Handler for navigating to projects */
-  onGoToProjects: () => void;
+  /** Handler for opening projects window */
+  onOpenProjects: () => void;
   /** Whether terminal is currently visible/active */
   isTerminalActive?: boolean;
+  /** Whether projects window is currently visible/active */
+  isProjectsActive?: boolean;
 }
 
 /**
@@ -154,8 +156,9 @@ function DockPlaceholder() {
  */
 export default function Dock({
   onOpenTerminal,
-  onGoToProjects,
+  onOpenProjects,
   isTerminalActive = false,
+  isProjectsActive = false,
 }: DockProps) {
   // Named constants for styling (Relating Magic Numbers to Logic)
   const dockContainerClasses =
@@ -178,7 +181,11 @@ export default function Dock({
           <TerminalIcon />
         </DockItem>
 
-        <DockItem onClick={onGoToProjects} label="Projects">
+        <DockItem
+          onClick={onOpenProjects}
+          label="Projects"
+          isActive={isProjectsActive}
+        >
           <ProjectsIcon />
         </DockItem>
 

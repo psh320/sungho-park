@@ -1,7 +1,5 @@
 import ProjectItem from "@/components/Project/ProjectItem";
-import ProjectModal from "@/components/Project/ProjectPageModal";
 import { GetStaticProps } from "next";
-import { useState } from "react";
 import { getAllProjectsWithReadme } from "@/utils/projectUtils";
 import { ProjectData } from "@/data/projects";
 
@@ -13,20 +11,13 @@ type Props = {
 };
 
 // Separate component for project grid (Abstracting Implementation Details)
-function ProjectGrid({
-  projects,
-  onProjectSelect,
-}: {
-  projects: ProjectData[];
-  onProjectSelect: (project: ProjectData) => void;
-}) {
+function ProjectGrid({ projects }: { projects: ProjectData[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 py-10 m-6 gap-8 items-center justify-center max-w-6xl">
       {projects.map((project) => (
         <ProjectItem
           key={project.id} // Use project.id instead of array index
           project={project}
-          onViewDetails={() => onProjectSelect(project)}
         />
       ))}
     </div>
@@ -48,33 +39,13 @@ function ProjectPageHeader() {
 }
 
 export default function ProjectPage({ projects }: Props) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
-    null
-  );
-
-  // Colocated simple logic (Reducing Eye Movement)
-  const handleProjectSelect = (project: ProjectData) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedProject(null);
-  };
-
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-24 mb-12">
-      <ProjectPageHeader />
+    <div>
+      <div className="flex flex-col min-h-screen justify-center items-center px-5 pt-24 mb-12">
+        <ProjectPageHeader />
 
-      <ProjectGrid projects={projects} onProjectSelect={handleProjectSelect} />
-
-      <ProjectModal
-        project={selectedProject}
-        isVisible={isModalOpen}
-        onClose={handleModalClose}
-      />
+        <ProjectGrid projects={projects} />
+      </div>
     </div>
   );
 }

@@ -95,7 +95,7 @@ export function TerminalInput({
             onChange={(e) => onCommandChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Enter command (try 'help')"
-            className="bg-transparent outline-none w-full placeholder-gray-500 dark:placeholder-green-300 relative z-10"
+            className="bg-transparent outline-none w-full placeholder-gray-500 dark:placeholder-green-300 relative"
             autoFocus
           />
           {/* Inline suggestion overlay */}

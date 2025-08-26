@@ -20,7 +20,7 @@ export async function getProjectWithReadme(
 
     return {
       ...project,
-      readmeContent,
+      readme: readmeContent,
     };
   } catch (error) {
     console.error(`Failed to load README for project ${projectId}:`, error);
@@ -47,7 +47,7 @@ export async function getAllProjectsWithReadme(): Promise<ProjectData[]> {
 
         return {
           ...project,
-          readmeContent,
+          readme: readmeContent,
         };
       } catch (error) {
         console.error(
