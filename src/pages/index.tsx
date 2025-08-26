@@ -5,6 +5,7 @@ import { Terminal } from "@/components/Home/Terminal";
 import Skills from "@/components/Home/Skills";
 import Monitor from "@/components/Desktop/Monitor";
 import { Desktop, ProjectsWindow } from "@/components/Desktop";
+import { useWindowFocus } from "@/hooks/useWindowFocus";
 
 // Named constants for better readability (Naming Magic Numbers)
 const PAGE_TITLE = "Sungho Park - Frontend Engineer";
@@ -12,6 +13,10 @@ const PAGE_DESCRIPTION = "Frontend Engineer with 2+ years of experience";
 const HERO_SECTION_PADDING_TOP = "pt-24";
 const BUTTON_TRANSITION_DURATION = "duration-200";
 // Removed PROJECTS_ROUTE since we now use desktop windows
+
+// Window IDs for focus management (Naming Magic Numbers)
+const TERMINAL_WINDOW_ID = "terminal";
+const PROJECTS_WINDOW_ID = "projects";
 
 /**
  * Hero content component - Abstracting Implementation Details
@@ -189,7 +194,7 @@ function PageHead() {
 
 /**
  * Desktop environment component - Abstracting Implementation Details
- * Encapsulates the monitor/desktop/terminal setup
+ * Encapsulates the monitor/desktop/terminal setup with window focus management
  */
 function DesktopEnvironment({
   onOpenTerminal,
@@ -214,6 +219,9 @@ function DesktopEnvironment({
   onCloseProjects: () => void;
   onMinimizeProjects: () => void;
 }) {
+  // Window focus management - Scoping State Management
+  const { getWindowZIndex, focusWindow } = useWindowFocus();
+
   return (
     <Monitor>
       <Desktop
@@ -227,12 +235,16 @@ function DesktopEnvironment({
           isMinimized={isTerminalMinimized}
           onClose={onCloseTerminal}
           onMinimize={onMinimizeTerminal}
+          zIndex={getWindowZIndex(TERMINAL_WINDOW_ID)}
+          onFocus={() => focusWindow(TERMINAL_WINDOW_ID)}
         />
         <ProjectsWindow
           isVisible={isProjectsVisible}
           isMinimized={isProjectsMinimized}
           onClose={onCloseProjects}
           onMinimize={onMinimizeProjects}
+          zIndex={getWindowZIndex(PROJECTS_WINDOW_ID)}
+          onFocus={() => focusWindow(PROJECTS_WINDOW_ID)}
         />
       </Desktop>
     </Monitor>

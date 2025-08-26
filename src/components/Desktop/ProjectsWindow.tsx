@@ -50,6 +50,10 @@ interface ProjectsWindowProps {
   onClose: () => void;
   /** Callback when projects window is minimized */
   onMinimize: () => void;
+  /** Window z-index for stacking order */
+  zIndex?: number;
+  /** Callback when projects window is focused/clicked */
+  onFocus?: () => void;
 }
 
 /**
@@ -446,6 +450,8 @@ export function ProjectsWindow({
   isMinimized,
   onClose,
   onMinimize,
+  zIndex,
+  onFocus,
 }: ProjectsWindowProps) {
   const { projects, isLoading, error } = useProjectsData();
   const { searchQuery, setSearchQuery, filteredProjects, clearSearch } =
@@ -470,6 +476,8 @@ export function ProjectsWindow({
       maxSize={PROJECTS_WINDOW_CONFIG.MAX_SIZE}
       className="font-sans"
       contentClassName="overflow-hidden"
+      zIndex={zIndex}
+      onFocus={onFocus}
     >
       <ProjectsContent
         projects={projects}

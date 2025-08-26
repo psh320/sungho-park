@@ -12,6 +12,10 @@ interface TerminalProps {
   onClose: () => void;
   /** Callback when terminal is minimized */
   onMinimize: () => void;
+  /** Window z-index for stacking order */
+  zIndex?: number;
+  /** Callback when terminal is focused/clicked */
+  onFocus?: () => void;
 }
 
 // Named constants for terminal styling (Relating Magic Numbers to Logic)
@@ -31,6 +35,8 @@ export default function Terminal({
   isMinimized,
   onClose,
   onMinimize,
+  zIndex,
+  onFocus,
 }: TerminalProps) {
   // Use dedicated terminal state hook (Scoping State Management)
   const terminalState = useTerminalState({ isVisible });
@@ -58,6 +64,8 @@ export default function Terminal({
       }}
       className={`${TERMINAL_STYLING.FONT_FAMILY} ${TERMINAL_STYLING.TEXT_COLORS}`}
       contentClassName={TERMINAL_STYLING.BACKGROUND}
+      zIndex={zIndex}
+      onFocus={onFocus}
     >
       <TerminalDisplay
         typedText={terminalState.typedText}

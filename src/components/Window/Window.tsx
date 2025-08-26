@@ -44,6 +44,10 @@ interface WindowProps {
   contentStyle?: React.CSSProperties;
   /** Custom classes for the window content */
   contentClassName?: string;
+  /** Window z-index for stacking order */
+  zIndex?: number;
+  /** Callback when window is focused/clicked */
+  onFocus?: () => void;
 }
 
 /**
@@ -172,6 +176,8 @@ export default function Window({
   className = "",
   contentStyle = {},
   contentClassName = "",
+  zIndex = 10,
+  onFocus,
 }: WindowProps) {
   const windowRef = useRef<HTMLDivElement>(null);
 
@@ -183,6 +189,11 @@ export default function Window({
     shouldToggleFullscreen,
     onFullscreenChange,
   });
+
+  // Focus handling - Single Responsibility for window focus
+  const handleWindowFocus = useCallback(() => {
+    onFocus?.();
+  }, [onFocus]);
 
   if (!isVisible) return null;
 
@@ -205,7 +216,12 @@ export default function Window({
       <div
         ref={windowRef}
         className={`${windowConfig.windowClasses} ${interactionClasses} ${className}`}
-        style={windowConfig.windowStyle}
+        style={{
+          ...windowConfig.windowStyle,
+          zIndex,
+        }}
+        onClick={handleWindowFocus}
+        onMouseDown={handleWindowFocus}
       >
         <WindowHeader
           title={title}
