@@ -9,3 +9,9 @@ export { default as Monitor } from "./Monitor";
 export { default as DarkModeToggleButton } from "./DarkModeToggleButton";
 export { default as Window } from "./Window";
 export { WindowHeader } from "./WindowHeader";
+export { WindowControls } from "./WindowControls";
+export {
+  WINDOW_CONSTANTS,
+  WindowConfigFactory,
+  calculateInitialPosition,
+} from "./WindowConfig";

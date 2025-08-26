@@ -1,4 +1,4 @@
-import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
+import { WindowControls } from "./WindowControls";
 
 interface WindowHeaderProps {
   /** Window title to display */
@@ -17,11 +17,16 @@ interface WindowHeaderProps {
   className?: string;
 }
 
-const BUTTON_SIZE_CLASS = "w-3.5 h-3.5"; // 12px equivalent
+// Named constants for styling (Relating Magic Numbers to Logic)
+const HEADER_SPACING_X = "px-4";
+const HEADER_SPACING_Y = "py-2";
+const TITLE_LEFT_MARGIN = "ml-4";
+const CONTROLS_SPACING = "space-x-2";
 
 /**
  * Generic window header component with macOS-style window controls
  * Features: close, minimize, fullscreen buttons, draggable area, customizable title
+ * Abstracting Implementation Details - Uses WindowControls for button logic
  */
 export function WindowHeader({
   title,
@@ -32,75 +37,105 @@ export function WindowHeader({
   onDragStart,
   className = "",
 }: WindowHeaderProps) {
-  const headerClasses =
-    "flex items-center justify-between bg-gray-200 dark:bg-gray-800 px-4 py-2 border-b border-gray-300 dark:border-gray-600 rounded-t-lg";
+  // Colocated header styling configuration (Reducing Eye Movement)
+  const headerClasses = [
+    "flex items-center justify-between",
+    "bg-gray-200 dark:bg-gray-800",
+    HEADER_SPACING_X,
+    HEADER_SPACING_Y,
+    "border-b border-gray-300 dark:border-gray-600",
+    "rounded-t-lg",
+  ].join(" ");
+
+  // Named condition for better readability
+  const isDraggableAndNotFullscreen = !isFullscreen && onDragStart;
+  const cursorStyle = isDraggableAndNotFullscreen ? "cursor-move" : "";
 
   return (
-    <div
-      className={`${headerClasses} ${
-        !isFullscreen && onDragStart ? "cursor-move" : ""
-      } ${className}`}
+    <WindowHeaderContainer
+      className={`${headerClasses} ${cursorStyle} ${className}`}
       onMouseDown={!isFullscreen ? onDragStart : undefined}
     >
-      <div className="flex items-center space-x-2">
-        <div className="flex space-x-2 group">
-          <button
-            onClick={onClose}
-            onMouseDown={(e) => e.stopPropagation()}
-            className={`${BUTTON_SIZE_CLASS} bg-red-500 rounded-full hover:bg-red-600 transition-colors flex items-center justify-center`}
-            title="Close Window"
-          >
-            <X
-              size={8}
-              strokeWidth={4}
-              className="text-red-900 opacity-0 group-hover:opacity-100 transition-opacity"
-            />
-          </button>
-          <button
-            onClick={onMinimize}
-            onMouseDown={(e) => e.stopPropagation()}
-            className={`${BUTTON_SIZE_CLASS} bg-yellow-500 rounded-full hover:bg-yellow-600 transition-colors flex items-center justify-center`}
-            title="Minimize Window"
-          >
-            <Minus
-              size={8}
-              strokeWidth={4}
-              className="text-yellow-900 opacity-0 group-hover:opacity-100 transition-opacity"
-            />
-          </button>
-          <button
-            onClick={onToggleFullscreen}
-            onMouseDown={(e) => e.stopPropagation()}
-            className={`${BUTTON_SIZE_CLASS} bg-green-500 rounded-full hover:bg-green-600 transition-colors flex items-center justify-center`}
-            title={
-              isFullscreen
-                ? "Exit Fullscreen Mode (Esc)"
-                : "Enter Fullscreen Mode (F11)"
-            }
-          >
-            {isFullscreen ? (
-              <Minimize2
-                size={8}
-                strokeWidth={4}
-                className="text-green-900 opacity-0 group-hover:opacity-100 transition-opacity"
-              />
-            ) : (
-              <Maximize2
-                size={8}
-                strokeWidth={4}
-                className="text-green-900 opacity-0 group-hover:opacity-100 transition-opacity"
-              />
-            )}
-          </button>
-        </div>
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-4">
-          {title}
-        </span>
-      </div>
+      <WindowHeaderContent
+        title={title}
+        isFullscreen={isFullscreen}
+        onClose={onClose}
+        onMinimize={onMinimize}
+        onToggleFullscreen={onToggleFullscreen}
+      />
+      <WindowHeaderRightSection />
+    </WindowHeaderContainer>
+  );
+}
 
-      <div className="flex items-center space-x-2">
-        {/* Right side intentionally empty for clean macOS-style design */}
-      </div>
+/**
+ * Window header container - Separating Code Paths for clean structure
+ */
+function WindowHeaderContainer({
+  children,
+  className,
+  onMouseDown,
+}: {
+  children: React.ReactNode;
+  className: string;
+  onMouseDown?: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <div className={className} onMouseDown={onMouseDown}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Window header content section - Cohesion - groups controls and title
+ */
+function WindowHeaderContent({
+  title,
+  isFullscreen,
+  onClose,
+  onMinimize,
+  onToggleFullscreen,
+}: {
+  title: string;
+  isFullscreen: boolean;
+  onClose: () => void;
+  onMinimize: () => void;
+  onToggleFullscreen: () => void;
+}) {
+  return (
+    <div className={`flex items-center ${CONTROLS_SPACING}`}>
+      <WindowControls
+        onClose={onClose}
+        onMinimize={onMinimize}
+        onToggleFullscreen={onToggleFullscreen}
+        isFullscreen={isFullscreen}
+      />
+      <WindowTitle title={title} />
+    </div>
+  );
+}
+
+/**
+ * Window title component - Single Responsibility
+ */
+function WindowTitle({ title }: { title: string }) {
+  return (
+    <span
+      className={`text-sm font-medium text-gray-700 dark:text-gray-300 ${TITLE_LEFT_MARGIN}`}
+    >
+      {title}
+    </span>
+  );
+}
+
+/**
+ * Window header right section - Separating Code Paths for potential future content
+ */
+function WindowHeaderRightSection() {
+  return (
+    <div className={`flex items-center ${CONTROLS_SPACING}`}>
+      {/* Right side intentionally empty for clean macOS-style design */}
     </div>
   );
 }

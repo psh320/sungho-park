@@ -1,9 +1,14 @@
-import { ReactNode, useRef, useEffect } from "react";
+import { ReactNode, useRef, useEffect, useCallback } from "react";
 import { useFullscreen } from "../../hooks/useFullscreen";
 import { useResize } from "../../hooks/useResize";
 import { useDrag } from "../../hooks/useDrag";
 import { WindowHeader } from "./WindowHeader";
 import { ResizeHandles } from "../Home/Terminal/ResizeHandles";
+import {
+  WindowConfigFactory,
+  calculateInitialPosition,
+  WINDOW_CONSTANTS,
+} from "./WindowConfig";
 
 interface WindowProps {
   /** Whether the window is visible */
@@ -45,6 +50,87 @@ interface WindowProps {
  * Features: drag & drop, resize, fullscreen, minimize/maximize controls
  * Can be used for any windowed content (terminal, editor, browser, etc.)
  */
+// Window size and position types (Standardizing Return Types)
+interface WindowSize {
+  width: number;
+  height: number;
+}
+
+interface WindowHooksResult {
+  size: WindowSize;
+  position: { x: number; y: number };
+  positionOffset: { x: number; y: number };
+  isResizing: boolean;
+  isDragging: boolean;
+  isFullscreen: boolean;
+  resizeHandlers: {
+    onMouseDown: (direction: any) => (e: React.MouseEvent) => void;
+  };
+  dragHandlers: { onMouseDown: (e: React.MouseEvent) => void };
+  handleToggleFullscreen: () => void;
+}
+
+/**
+ * Custom hook to manage window behavior - Scoping State Management
+ * Reduces coupling by grouping related window state
+ */
+function useWindowHooks({
+  initialSize,
+  minSize,
+  maxSize,
+  isDraggable,
+  shouldToggleFullscreen,
+  onFullscreenChange,
+}: {
+  initialSize: WindowSize;
+  minSize: WindowSize;
+  maxSize: WindowSize;
+  isDraggable: boolean;
+  shouldToggleFullscreen?: boolean;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
+}): WindowHooksResult {
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
+
+  // Handle fullscreen changes and notify parent (Revealing Hidden Logic)
+  const handleToggleFullscreen = useCallback(() => {
+    toggleFullscreen();
+    onFullscreenChange?.(!isFullscreen);
+  }, [toggleFullscreen, onFullscreenChange, isFullscreen]);
+
+  // Handle programmatic fullscreen toggle requests
+  useEffect(() => {
+    if (shouldToggleFullscreen) {
+      handleToggleFullscreen();
+    }
+  }, [shouldToggleFullscreen, handleToggleFullscreen]);
+
+  const { size, isResizing, positionOffset, resizeHandlers } = useResize({
+    initialSize,
+    minSize,
+    maxSize,
+  });
+
+  // Calculate initial position using helper (Relating Magic Numbers to Logic)
+  const initialCenteredPosition = calculateInitialPosition(initialSize);
+
+  const { position, isDragging, dragHandlers } = useDrag({
+    initialPosition: initialCenteredPosition,
+    disabled: isFullscreen || !isDraggable,
+  });
+
+  return {
+    size,
+    position,
+    positionOffset,
+    isResizing,
+    isDragging,
+    isFullscreen,
+    resizeHandlers,
+    dragHandlers,
+    handleToggleFullscreen,
+  };
+}
+
 export default function Window({
   isVisible,
   isMinimized,
@@ -54,9 +140,9 @@ export default function Window({
   onMinimize,
   onFullscreenChange,
   shouldToggleFullscreen = false,
-  initialSize = { width: 800, height: 600 },
-  minSize = { width: 400, height: 300 },
-  maxSize = { width: 1200, height: 800 },
+  initialSize = WINDOW_CONSTANTS.DEFAULT_SIZE,
+  minSize = WINDOW_CONSTANTS.DEFAULT_MIN_SIZE,
+  maxSize = WINDOW_CONSTANTS.DEFAULT_MAX_SIZE,
   isDraggable = true,
   isResizable = true,
   className = "",
@@ -64,78 +150,30 @@ export default function Window({
   contentClassName = "",
 }: WindowProps) {
   const windowRef = useRef<HTMLDivElement>(null);
-  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
-  // Handle fullscreen changes and notify parent
-  const handleToggleFullscreen = () => {
-    toggleFullscreen();
-    onFullscreenChange?.(!isFullscreen);
-  };
-
-  // Handle programmatic fullscreen toggle requests
-  useEffect(() => {
-    if (shouldToggleFullscreen) {
-      handleToggleFullscreen();
-    }
-  }, [shouldToggleFullscreen]);
-
-  const { size, isResizing, positionOffset, resizeHandlers } = useResize({
+  const windowHooks = useWindowHooks({
     initialSize,
     minSize,
     maxSize,
-  });
-
-  // Calculate initial centered position (only once)
-  const initialCenteredPosition = {
-    x: -initialSize.width / 2,
-    y: -initialSize.height / 2,
-  };
-
-  const { position, isDragging, dragHandlers } = useDrag({
-    initialPosition: initialCenteredPosition,
-    disabled: isFullscreen || !isDraggable,
+    isDraggable,
+    shouldToggleFullscreen,
+    onFullscreenChange,
   });
 
   if (!isVisible) return null;
 
-  // Named constants for styling (Naming Magic Numbers)
-  const FULLSCREEN_PADDING = "2rem";
-  const WINDOW_BORDER_RADIUS = "rounded-lg";
-  const WINDOW_SHADOW = "shadow-2xl";
-
-  // Determine window styling based on fullscreen and minimized state (Separating Code Paths)
-  const windowConfig = (() => {
-    const baseStyle = isMinimized
-      ? { opacity: 0, pointerEvents: "none" as const }
-      : { opacity: 1, pointerEvents: "auto" as const };
-
-    if (isFullscreen) {
-      return {
-        containerClasses: "flex items-start justify-center h-full",
-        windowClasses: `relative bg-white dark:bg-gray-900 ${WINDOW_BORDER_RADIUS} ${WINDOW_SHADOW} border border-gray-300 dark:border-gray-700 w-full flex flex-col transition-opacity duration-300`,
-        windowStyle: {
-          width: "100%",
-          height: `calc(100% - ${FULLSCREEN_PADDING})`,
-          ...baseStyle,
-        },
-      };
-    }
-
-    return {
-      containerClasses: "h-full",
-      windowClasses: `absolute bg-white dark:bg-gray-900 ${WINDOW_BORDER_RADIUS} ${WINDOW_SHADOW} border border-gray-300 dark:border-gray-700 flex flex-col transition-opacity duration-300`,
-      windowStyle: {
-        width: `${size.width}px`,
-        height: `${size.height}px`,
-        left: `calc(50% + ${position.x + positionOffset.x}px)`,
-        top: `calc(50% + ${position.y + positionOffset.y}px)`,
-        ...baseStyle,
-      },
-    };
-  })();
+  // Get window configuration using factory (Standardizing Return Types)
+  const windowConfig = windowHooks.isFullscreen
+    ? WindowConfigFactory.createFullscreenConfig(isMinimized)
+    : WindowConfigFactory.createWindowedConfig(
+        isMinimized,
+        windowHooks.size,
+        windowHooks.position,
+        windowHooks.positionOffset
+      );
 
   // Named condition for better readability
-  const isInteracting = isResizing || isDragging;
+  const isInteracting = windowHooks.isResizing || windowHooks.isDragging;
   const interactionClasses = isInteracting ? "select-none" : "";
 
   return (
@@ -147,26 +185,72 @@ export default function Window({
       >
         <WindowHeader
           title={title}
-          isFullscreen={isFullscreen}
+          isFullscreen={windowHooks.isFullscreen}
           onClose={onClose}
           onMinimize={onMinimize}
-          onToggleFullscreen={handleToggleFullscreen}
-          onDragStart={isDraggable ? dragHandlers.onMouseDown : undefined}
+          onToggleFullscreen={windowHooks.handleToggleFullscreen}
+          onDragStart={
+            isDraggable ? windowHooks.dragHandlers.onMouseDown : undefined
+          }
         />
 
-        {/* Window Content */}
-        <div
-          className={`flex-1 flex flex-col overflow-hidden ${contentClassName}`}
-          style={contentStyle}
+        <WindowContent
+          contentClassName={contentClassName}
+          contentStyle={contentStyle}
         >
           {children}
-        </div>
+        </WindowContent>
 
-        {/* Resize handles - only show when not in fullscreen and resizable */}
-        {!isFullscreen && isResizable && (
-          <ResizeHandles onMouseDown={resizeHandlers.onMouseDown} />
-        )}
+        <WindowResizeHandles
+          isFullscreen={windowHooks.isFullscreen}
+          isResizable={isResizable}
+          onMouseDown={windowHooks.resizeHandlers.onMouseDown}
+        />
       </div>
     </div>
   );
+}
+
+/**
+ * Window content component - Single Responsibility for content area
+ * Abstracting Implementation Details - Separates content styling from window logic
+ */
+function WindowContent({
+  children,
+  contentClassName,
+  contentStyle,
+}: {
+  children: ReactNode;
+  contentClassName: string;
+  contentStyle: React.CSSProperties;
+}) {
+  return (
+    <div
+      className={`flex-1 flex flex-col overflow-hidden ${contentClassName}`}
+      style={contentStyle}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Window resize handles component - Separating Code Paths for resize functionality
+ * Single Responsibility - Handles only resize handle rendering
+ */
+function WindowResizeHandles({
+  isFullscreen,
+  isResizable,
+  onMouseDown,
+}: {
+  isFullscreen: boolean;
+  isResizable: boolean;
+  onMouseDown: (direction: any) => (e: React.MouseEvent) => void;
+}) {
+  // Named condition for better readability
+  const shouldShowResizeHandles = !isFullscreen && isResizable;
+
+  if (!shouldShowResizeHandles) return null;
+
+  return <ResizeHandles onMouseDown={onMouseDown} />;
 }
