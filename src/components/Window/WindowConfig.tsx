@@ -118,3 +118,47 @@ export function calculateInitialPosition(size: WindowSize): Position {
     y: -size.height / 2,
   };
 }
+
+/**
+ * Calculate desktop boundary constraints for window dragging
+ * Prevents windows from being dragged outside the desktop area
+ * SSR-safe: Returns default boundaries during server-side rendering
+ *
+ * Note: Window positioning uses calc(50% + position.x), so:
+ * - position.x = -viewportWidth/2 puts the left edge at x=0
+ * - position.x = viewportWidth/2 puts the left edge at x=viewportWidth
+ */
+export function calculateDesktopBoundaries(): {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+} {
+  const X_PADDING = 40;
+  const Y_PADDING = 72;
+
+  // Check if we're running on the client side (SSR-safe)
+  if (typeof window === "undefined") {
+    // Return default boundaries for SSR - these will be updated on client hydration
+    const DEFAULT_VIEWPORT_WIDTH = 1920;
+    const DEFAULT_VIEWPORT_HEIGHT = 1080;
+
+    return {
+      minX: -DEFAULT_VIEWPORT_WIDTH / 2,
+      maxX: DEFAULT_VIEWPORT_WIDTH / 2,
+      minY: -DEFAULT_VIEWPORT_HEIGHT / 2,
+      maxY: DEFAULT_VIEWPORT_HEIGHT / 2,
+    };
+  }
+
+  // Get actual viewport dimensions on client side
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  return {
+    minX: -viewportWidth / 2 + X_PADDING,
+    maxX: viewportWidth / 2 - X_PADDING,
+    minY: -viewportHeight / 2 + Y_PADDING,
+    maxY: viewportHeight / 2 - Y_PADDING,
+  };
+}

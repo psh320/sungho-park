@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useEffect, useCallback } from "react";
+import { ReactNode, useRef, useEffect, useCallback, useState } from "react";
 import { useFullscreen } from "../../hooks/useFullscreen";
 import { useResize } from "../../hooks/useResize";
 import { useDrag } from "../../hooks/useDrag";
@@ -7,6 +7,7 @@ import { ResizeHandles } from "./ResizeHandles";
 import {
   WindowConfigFactory,
   calculateInitialPosition,
+  calculateDesktopBoundaries,
   WINDOW_CONSTANTS,
 } from "./WindowConfig";
 
@@ -113,9 +114,32 @@ function useWindowHooks({
   // Calculate initial position using helper (Relating Magic Numbers to Logic)
   const initialCenteredPosition = calculateInitialPosition(initialSize);
 
+  // State to track desktop boundaries that updates on viewport changes
+  const [desktopBoundaries, setDesktopBoundaries] = useState(() =>
+    calculateDesktopBoundaries()
+  );
+
+  // Update boundaries when component mounts and viewport size changes (SSR-safe)
+  useEffect(() => {
+    // Update boundaries immediately on client-side hydration
+    setDesktopBoundaries(calculateDesktopBoundaries());
+
+    const updateBoundaries = () => {
+      setDesktopBoundaries(calculateDesktopBoundaries());
+    };
+
+    // Only add event listener if window is available (client-side)
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", updateBoundaries);
+      return () => window.removeEventListener("resize", updateBoundaries);
+    }
+  }, []);
+
   const { position, isDragging, dragHandlers } = useDrag({
     initialPosition: initialCenteredPosition,
     disabled: isFullscreen || !isDraggable,
+    windowSize: size,
+    boundaryConstraints: desktopBoundaries,
   });
 
   return {
