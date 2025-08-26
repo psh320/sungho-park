@@ -1,4 +1,4 @@
-import Layout from "@/components/Common/Layout";
+import Layout from "@/components/App/Layout";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Analytics } from "@vercel/analytics/react";

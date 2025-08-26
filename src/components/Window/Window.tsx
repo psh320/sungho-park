@@ -3,7 +3,7 @@ import { useFullscreen } from "../../hooks/useFullscreen";
 import { useResize } from "../../hooks/useResize";
 import { useDrag } from "../../hooks/useDrag";
 import { WindowHeader } from "./WindowHeader";
-import { ResizeHandles } from "../Home/Terminal/ResizeHandles";
+import { ResizeHandles } from "./ResizeHandles";
 import {
   WindowConfigFactory,
   calculateInitialPosition,

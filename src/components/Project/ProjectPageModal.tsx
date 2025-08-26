@@ -1,6 +1,6 @@
 import { ProjectData } from "@/data/projects";
 import { useState, useEffect } from "react";
-import { LoadingIndicator } from "../Common/LoadingIndicator";
+import LoadingIndicator from "../UI/LoadingIndicator";
 import { ProjectModalHeader } from "./ProjectModalHeader";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";

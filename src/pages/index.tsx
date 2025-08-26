@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { Terminal } from "@/components/Home/Terminal";
 import Skills from "@/components/Home/Skills";
-import Monitor from "@/components/Common/Monitor";
-import Desktop from "@/components/Common/Desktop";
+import Monitor from "@/components/Desktop/Monitor";
+import Desktop from "@/components/Desktop/Desktop";
 
 // Named constants for better readability (Naming Magic Numbers)
 const PAGE_TITLE = "Sungho Park - Frontend Engineer";

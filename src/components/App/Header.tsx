@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import DarkModeToggleButton from "./DarkModeToggleButton";
+import DarkModeToggleButton from "../UI/DarkModeToggleButton";
 
 export default function Header() {
   const route = useRouter();

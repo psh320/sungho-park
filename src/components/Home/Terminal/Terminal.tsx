@@ -1,7 +1,7 @@
 import { TerminalInput } from "./TerminalInput";
 import { TERMINAL_CONFIG } from "./constants";
 import { useTerminalState } from "./TerminalState";
-import Window from "../../Common/Window";
+import Window from "../../Window/Window";
 
 interface TerminalProps {
   /** Whether the terminal is visible */
