@@ -135,7 +135,7 @@ export function calculateDesktopBoundaries(): {
   maxY: number;
 } {
   const X_PADDING = 40;
-  const Y_PADDING = 72;
+  const Y_PADDING = 32;
 
   // Check if we're running on the client side (SSR-safe)
   if (typeof window === "undefined") {
