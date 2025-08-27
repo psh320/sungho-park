@@ -2,7 +2,6 @@ import { ReactNode, useRef, useEffect } from "react";
 import { useDesktopCursor } from "@/hooks/useDesktopCursor";
 
 // Named constants for better readability (Naming Magic Numbers)
-const HEADER_HEIGHT_PX = 112; // Height of the header in pixels
 const MONITOR_BORDER_SIZE = "2rem"; // 8px * 4 = 32px total padding (p-8)
 const MONITOR_Z_INDEX = 0; // Base z-index for monitor
 
@@ -16,8 +15,8 @@ interface MonitorProps {
  * Represents the black border around the monitor screen
  */
 function MonitorBezel({ children }: { children: ReactNode }) {
-  // Named conditions for better readability
-  const bezelClasses = `min-h-screen pt-[112px] bg-black p-8`;
+  // Named conditions for better readability - no more header padding needed
+  const bezelClasses = `min-h-screen bg-black p-8`;
 
   return <div className={bezelClasses}>{children}</div>;
 }
@@ -47,7 +46,7 @@ function MonitorScreen({ children }: { children: ReactNode }) {
 
   // Named calculation for screen height (Relating Magic Numbers to Logic)
   const screenClasses =
-    "w-full bg-primary overflow-hidden h-[calc(100vh-112px-2rem)]";
+    "w-full bg-primary overflow-hidden h-[calc(100vh-2rem)]";
 
   return (
     <div ref={screenRef} className={screenClasses}>

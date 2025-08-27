@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Dock from "./Dock";
+import DesktopHeader from "./DesktopHeader";
 
 // Named constants for better readability (Naming Magic Numbers)
 const DESKTOP_Z_INDEX = 1; // Desktop sits above monitor background
@@ -23,7 +24,7 @@ interface DesktopProps {
  * Contains windows, applications, and other desktop elements
  */
 function DesktopContent({ children }: { children?: ReactNode }) {
-  return <div className="relative w-full h-full">{children}</div>;
+  return <div className="relative w-full h-full flex flex-col">{children}</div>;
 }
 
 /**
@@ -74,7 +75,10 @@ export default function Desktop({
 
   return (
     <div className={desktopContainerClasses}>
-      <DesktopContent>{children}</DesktopContent>
+      <DesktopContent>
+        <DesktopHeader />
+        <div className="flex-1 relative">{children}</div>
+      </DesktopContent>
       <DesktopDock
         onOpenTerminal={onOpenTerminal}
         onOpenProjects={onOpenProjects}
